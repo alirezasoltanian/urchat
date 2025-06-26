@@ -1,0 +1,11 @@
+services:
+  urchat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3013:3013"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
