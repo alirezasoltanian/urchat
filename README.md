@@ -138,5 +138,3 @@ This project is licensed under the [MIT License](./LICENSE).
 ## 🤝 Contributing
 
 We welcome contributions! If you’d like to add features, fix bugs, or improve documentation, feel free to open a PR or issue.
-
-> Made with ❤️ by [Your Name] — UrChat 🌱
