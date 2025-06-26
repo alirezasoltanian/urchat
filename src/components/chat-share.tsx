@@ -1,6 +1,5 @@
 "use client";
 
-import { env } from "@/env";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -37,7 +36,7 @@ export function ChatShare({
   const open = externalOpen ?? internalOpen;
   const setOpen = setExternalOpen ?? setInternalOpen;
   const [pending, startTransition] = useTransition();
-  const baseUrl = env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   const [shareUrl, setShareUrl] = useState(
     visibility === "public" ? `${baseUrl}/chat/${chatId}` : ""
