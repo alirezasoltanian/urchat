@@ -6,7 +6,7 @@ import {
 } from "@/constants";
 
 import { uploadFilesToS3 } from "@/app/_actions/clientFileUploader";
-import type { UseChatHelpers } from "ai/react";
+import type { UseChatHelpers } from "@ai-sdk/react";
 import { ArrowUp, Check, Mic, Paperclip, Square, X } from "lucide-react";
 import { motion } from "motion/react";
 import React, {
@@ -37,6 +37,7 @@ import { VoiceVisualizer } from "./voice-visualizer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { PreviewAttachment } from "./preview-attachment";
 import { id } from "zod/v4/locales";
+import { ChatMessage } from "@/types";
 
 function isFileInArray(file: File, existingFiles: File[]) {
   return existingFiles.some(
@@ -50,8 +51,8 @@ interface MultimodalInputProps {
   chatId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
-  handleSubmit: UseChatHelpers["handleSubmit"];
-  status: UseChatHelpers["status"];
+  handleSubmit: UseChatHelpers<ChatMessage>["handleSubmit"];
+  status: UseChatHelpers<ChatMessage>["status"];
   query?: string;
   stop: () => void;
   append?: (message: any) => void;

@@ -11,7 +11,7 @@ export const searchTool = tool({
         model: openai.responses("gpt-4o-mini"),
         prompt: "What happened in San Francisco last week?",
         tools: {
-          web_search_preview: openai.tools.webSearchPreview(),
+          web_search_preview: openai.tools.webSearchPreview({}),
         },
       });
       console.log("queryqueryquery", text, sources);

@@ -21,6 +21,7 @@ import { Vote } from "@/db/schema";
 import { GlowEffect } from "./core/glow-effect";
 import { Tooltip } from "./reuseable/re-tooltip";
 import CopyButton from "./CopyButton";
+import { ChatMessage } from "@/types";
 
 const PurePreviewMessage = ({
   chatId,
@@ -28,7 +29,7 @@ const PurePreviewMessage = ({
   vote,
   isLoading,
   setMessages,
-  reload,
+  regenerate,
   isReadonly,
   requiresScrollPadding,
   onQuerySelect,
@@ -39,8 +40,8 @@ const PurePreviewMessage = ({
   message: UIMessage;
   vote: Vote | undefined;
   isLoading: boolean;
-  setMessages: UseChatHelpers["setMessages"];
-  reload: UseChatHelpers["reload"];
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
+  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   requiresScrollPadding: boolean;
   onQuerySelect: (query: string) => void;
@@ -188,7 +189,7 @@ const PurePreviewMessage = ({
                         message={message}
                         setMode={setMode}
                         setMessages={setMessages}
-                        reload={reload}
+                        regenerate={regenerate}
                       />
                     </div>
                   );

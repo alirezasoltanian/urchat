@@ -1,5 +1,6 @@
+import { LanguageModel } from "ai";
+
 export const DEFAULT_CHAT_MODEL: string = "chat-model";
-import { LanguageModelV1 } from "ai";
 
 export interface ChatModel {
   id: string;
@@ -121,11 +122,10 @@ type ModelConfig = {
 
   icon?: string; // e.g. "gpt-4", "claude", "mistral", or custom string
 
-  // apiSdk?: () => LanguageModelV1 // "openai("gpt-4.1-nano")"
   apiSdk?: (
     apiKey?: string,
     opts?: { enableSearch?: boolean }
-  ) => LanguageModelV1;
+  ) => LanguageModel;
 
   accessible?: boolean; // true if the model is accessible to the user
 };

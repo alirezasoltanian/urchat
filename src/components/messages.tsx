@@ -6,16 +6,17 @@ import equal from "fast-deep-equal";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { motion } from "motion/react";
 import { useMessages } from "@/hooks/use-messages";
-import type { Vote } from "@/types";
+import type { ChatMessage } from "@/types";
 import { PromptSystem } from "./prompt-system";
+import { Vote } from "@/db/schema";
 
 interface MessagesProps {
   chatId: string;
-  status: UseChatHelpers["status"];
+  status: UseChatHelpers<ChatMessage>["status"];
   votes: Array<Vote> | undefined;
   messages: Array<UIMessage>;
-  setMessages: UseChatHelpers["setMessages"];
-  reload: UseChatHelpers["reload"];
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
+  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   onQuerySelect: (query: string) => void;
   handleInputChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -28,7 +29,7 @@ function PureMessages({
   votes,
   messages,
   setMessages,
-  reload,
+  regenerate,
   isReadonly,
   onQuerySelect,
   handleInputChange,
@@ -69,7 +70,7 @@ function PureMessages({
           setAttachments={setAttachments}
           onQuerySelect={onQuerySelect}
           setMessages={setMessages}
-          reload={reload}
+          regenerate={regenerate}
           isReadonly={isReadonly}
           requiresScrollPadding={
             hasSentMessage && index === messages.length - 1

@@ -1,42 +1,35 @@
 import type { Chat } from "@/db/schema";
 import { generateTitleFromUserMessage } from "@/lib/actions/chat";
 import { decreaseToken, getChatToken } from "@/lib/actions/user";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import { DEFAULT_MODEL } from "@/lib/ai/models";
 import { systemPrompt } from "@/lib/ai/prompts";
-import { myProvider } from "@/lib/ai/providers";
-import { getModel } from "@/lib/ai/registry";
 import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { auth } from "@/lib/auth";
 import { ChatSDKError } from "@/lib/errors";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import {
   createStreamId,
   deleteChatById,
   getChatById,
-  getMessageCountByUserId,
   getMessagesByChatId,
   getStreamIdsByChatId,
   saveChat,
   saveMessages,
 } from "@/lib/queries/chat";
-import { generateUUID, getTrailingMessageId, Model } from "@/lib/utils";
+import { generateUUID, getTrailingMessageId } from "@/lib/utils";
 import {
   postRequestBodySchema,
   type PostRequestBody,
 } from "@/lib/validations/chat";
-import { geolocation } from "@vercel/functions";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import {
   appendClientMessage,
   appendResponseMessages,
   createDataStream,
   smoothStream,
+  stepCountIs,
   streamText,
 } from "ai";
-import type { User } from "better-auth";
-import { differenceInSeconds } from "date-fns";
 import { cookies } from "next/headers";
 import { after } from "next/server";
 // import {
@@ -158,16 +151,22 @@ export async function POST(request: Request) {
     const system = systemPrompt();
 
     const openrouterFormat = selectedModel.replace(":", "/");
-    const model = createOpenRouter({
+
+    const model = createOpenAICompatible({
+      name: "openrouter",
       apiKey: process.env.OPENROUTER_API_KEY,
-    }).chat(openrouterFormat);
+      baseURL: "https://openrouter.ai/api/v1",
+    }).chatModel(openrouterFormat);
+    // const model = createOpenRouter({
+    //   apiKey: process.env.OPENROUTER_API_KEY,
+    // }).chat(openrouterFormat);
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
           model,
           system,
           messages,
-          maxSteps: searchMode ? 5 : 1,
+          stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),
           experimental_activeTools: searchMode
             ? ["search", "generateImage"]
             : ["generateImage"],

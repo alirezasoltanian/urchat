@@ -1,3 +1,7 @@
+import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
+import { searchTool } from "@/lib/ai/tools/search-tool";
+import { InferUITool, UIMessage } from "ai";
+
 export type DataPart = { type: "append-message"; message: string };
 export interface UploadedFile {
   name: string;
@@ -60,3 +64,31 @@ export type SerperSearchResultItem = {
   date: string;
   position: number;
 };
+export const messageMetadataSchema = z.object({
+  createdAt: z.string(),
+});
+
+export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
+export type CustomUIDataTypes = {
+  textDelta: string;
+  imageDelta: string;
+  sheetDelta: string;
+  codeDelta: string;
+  // suggestion: Suggestion;
+  appendMessage: string;
+  id: string;
+  title: string;
+  clear: null;
+  finish: null;
+};
+type searchTool = InferUITool<typeof searchTool>;
+type generateImageTool = InferUITool<ReturnType<typeof generateImageTool>>;
+export type ChatTools = {
+  search: searchTool;
+  generateImage: generateImageTool;
+};
+export type ChatMessage = UIMessage<
+  MessageMetadata,
+  CustomUIDataTypes,
+  ChatTools
+>;
