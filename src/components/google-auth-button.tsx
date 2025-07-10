@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
 import { Button } from "./ui/button";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 
 function GoogleAuthButton() {
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8 text-center">
@@ -20,10 +21,13 @@ function GoogleAuthButton() {
         <div className="space-y-6">
           <Button
             onClick={async () => {
+              setIsLoading(true);
               await authClient.signIn.social({
                 provider: "google",
               });
+              setIsLoading(false);
             }}
+            disabled={isLoading}
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg font-medium"
             size="lg"
           >
