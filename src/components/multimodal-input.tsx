@@ -30,14 +30,13 @@ import { Button } from "./ui/button";
 import Spinner from "./ui/spinner";
 
 import { transcribeAudio } from "@/app/_actions/transcribe";
-import type { Attachment } from "ai";
 import ModelCombobox from "./model-selector";
 import { SearchModeToggle } from "./search-mode-toggle";
 import { VoiceVisualizer } from "./voice-visualizer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { PreviewAttachment } from "./preview-attachment";
 import { id } from "zod/v4/locales";
-import { ChatMessage } from "@/types";
+import { Attachment, ChatMessage } from "@/types";
 
 function isFileInArray(file: File, existingFiles: File[]) {
   return existingFiles.some(
@@ -51,34 +50,27 @@ interface MultimodalInputProps {
   chatId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
-  handleSubmit: UseChatHelpers<ChatMessage>["handleSubmit"];
   status: UseChatHelpers<ChatMessage>["status"];
-  query?: string;
   stop: () => void;
-  append?: (message: any) => void;
-  children?: React.ReactElement;
   placeholder?: string;
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   attachments: Attachment[];
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
+  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
 }
 
 export function MultimodalInput({
   chatId,
   input,
   setInput,
-  handleSubmit,
   status,
-  query,
   stop,
-  append,
-  children,
   placeholder,
   attachments,
   setAttachments,
+  setMessages,
+  sendMessage,
 }: MultimodalInputProps) {
-  const [showEmptyScreen, setShowEmptyScreen] = useState(false);
-
-  const isFirstRender = useRef(true);
   const textareaRef = useRef(true);
   const [isComposing, setIsComposing] = useState(false);
   const [enterDisabled, setEnterDisabled] = useState(false);
@@ -383,13 +375,43 @@ export function MultimodalInput({
   );
   const submitForm = useCallback(() => {
     window.history.replaceState({}, "", `/chat/${chatId}`);
-
-    handleSubmit(undefined, {
-      experimental_attachments: attachments,
+    console.log("firstfirstfirst192", {
+      role: "user",
+      parts: [
+        ...attachments.map((attachment) => ({
+          type: "file" as const,
+          url: attachment.url,
+          name: attachment.name,
+          mediaType: attachment.contentType,
+        })),
+        {
+          type: "text",
+          text: input,
+        },
+      ],
     });
 
+    sendMessage({
+      role: "user",
+      parts: [
+        ...attachments.map((attachment) => ({
+          type: "file" as const,
+          url: attachment.url,
+          name: attachment.name,
+          mediaType: attachment.contentType,
+        })),
+        {
+          type: "text",
+          text: input,
+        },
+      ],
+    });
     setAttachments([]);
-  }, [attachments, handleSubmit, setAttachments]);
+    setInput("");
+  }, [input, setInput, attachments, sendMessage, setAttachments, chatId]);
+  const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(event.target.value);
+  };
   return (
     // <div
     //   className={cn(
@@ -463,10 +485,7 @@ export function MultimodalInput({
               className="text-normal  bg-transparent m-0 mt-2 w-full resize-none  px-3 ring-0 outline-none"
               placeholder={placeholder ?? "Type your message here..."}
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                setShowEmptyScreen(e.target.value.length === 0);
-              }}
+              onChange={handleInput}
               onKeyDown={(e) => {
                 if (
                   e.key === "Enter" &&
@@ -597,7 +616,10 @@ export function MultimodalInput({
                   variant="outline"
                   size="icon"
                   className="size-10 rounded-xl"
-                  onClick={handleCancelRecording}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCancelRecording();
+                  }}
                   disabled={isProcessing}
                 >
                   <X className="size-5" />

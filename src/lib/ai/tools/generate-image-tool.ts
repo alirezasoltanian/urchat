@@ -2,26 +2,23 @@ import { after } from "next/server";
 import { openai } from "@ai-sdk/openai";
 import { type FilePart, experimental_generateImage as generateImage } from "ai";
 import { z } from "zod";
+import { tool } from "ai";
 
 import { decreaseToken } from "@/lib/actions/user";
 import { uploadFileToS3 } from "@/app/_actions/clientFileUploader";
 import { uploadFilesToDB } from "@/lib/actions/file";
 
-export function generateImageTool(id: string) {
-  return {
+export const generateImageTool = (id: string) =>
+  tool({
     description: "Generate an image based on the prompt.",
-    parameters: z.object({
+    inputSchema: z.object({
       description: z
         .string()
         .describe("make a prompt for the image user want to generate"),
     }),
     execute: async (
       { description }: { description: string },
-      {
-        toolCallId,
-      }: {
-        toolCallId: string;
-      }
+      { toolCallId }: { toolCallId: string }
     ) => {
       const { image } = await generateImage({
         model: openai.image("dall-e-3"),
@@ -73,5 +70,4 @@ export function generateImageTool(id: string) {
         url: result.websiteType.url,
       };
     },
-  };
-}
+  });

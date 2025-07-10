@@ -8,7 +8,7 @@ import { ChatSDKError } from "@/lib/errors";
 
 import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
-import type { Attachment, UIMessage } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
@@ -31,6 +31,7 @@ import { ForkKnife, GitFork } from "lucide-react";
 import Spinner from "./ui/spinner";
 import { shortcuts } from "@/constants";
 import { Vote } from "@/db/schema";
+import { Attachment, ChatMessage } from "@/types";
 
 export function Chat({
   id,
@@ -42,7 +43,7 @@ export function Chat({
   user,
 }: {
   id: string;
-  initialMessages: Array<UIMessage>;
+  initialMessages: ChatMessage[];
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
@@ -50,7 +51,7 @@ export function Chat({
   user: User;
 }) {
   const { mutate } = useSWRConfig();
-
+  const [input, setInput] = useState<string>("");
   const { visibilityType } = useChatVisibility({
     chatId: id,
     initialVisibilityType,
@@ -59,32 +60,35 @@ export function Chat({
   const {
     messages,
     setMessages,
-    handleSubmit,
-    input,
-    setInput,
-    append,
+    sendMessage,
+
     status,
     stop,
-    reload,
-    experimental_resume,
-    handleInputChange,
-    data,
+    regenerate,
   } = useChat({
     id,
-    initialMessages,
+    messages: initialMessages,
     experimental_throttle: 100,
-    sendExtraMessageFields: true,
+
     generateId: generateUUID,
-    fetch: fetchWithErrorHandlers,
-    experimental_prepareRequestBody: (body) => {
-      console.log("Request Body:", body);
-      return {
-        id,
-        message: body.messages.at(-1),
-        selectedChatModel: initialChatModel,
-        selectedVisibilityType: visibilityType,
-      };
-    },
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      fetch: fetchWithErrorHandlers,
+      prepareSendMessagesRequest({ messages, id, body }) {
+        return {
+          body: {
+            id,
+            message: messages.at(-1),
+            selectedChatModel: initialChatModel,
+            selectedVisibilityType: visibilityType,
+            ...body,
+          },
+        };
+      },
+    }),
+    // onData: (dataPart) => {
+    //   setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+    // },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
     },
@@ -102,9 +106,9 @@ export function Chat({
     if (!messages.length) {
       window.history.replaceState({}, "", `/chat/${id}`);
     }
-    append({
+    sendMessage({
       role: "user",
-      content: query ?? input,
+
       parts: [{ text: query ?? input, type: "text" }],
     });
   };
@@ -146,15 +150,7 @@ export function Chat({
   return (
     <>
       <div className="flex flex-col min-w-0 h-dvh bg-background">
-        <ChatHeader
-          user={user}
-          chatId={id}
-          selectedModelId={initialChatModel}
-          openShortcutDialog={openShortcutDialog}
-          setOpenShortcutDialog={setOpenShortcutDialog}
-          selectedVisibilityType={initialVisibilityType}
-          isReadonly={isReadonly}
-        />
+        <ChatHeader user={user} setOpenShortcutDialog={setOpenShortcutDialog} />
 
         <Messages
           chatId={id}
@@ -162,9 +158,9 @@ export function Chat({
           votes={votes}
           messages={messages}
           setMessages={setMessages}
-          reload={reload}
+          regenerate={regenerate}
           onQuerySelect={onQuerySelect}
-          handleInputChange={handleInputChange}
+          setInput={setInput}
           isReadonly={isReadonly}
           setAttachments={setAttachments}
         />
@@ -174,15 +170,12 @@ export function Chat({
             input={input}
             chatId={id}
             setInput={setInput}
-            handleSubmit={handleSubmit}
             status={status}
             stop={stop}
             attachments={attachments}
             setAttachments={setAttachments}
-            messages={messages}
+            sendMessage={sendMessage}
             setMessages={setMessages}
-            append={append}
-            selectedVisibilityType={visibilityType}
           />
         ) : (
           <Button
@@ -190,7 +183,7 @@ export function Chat({
               setIsForkLoading(true);
               await forkAction({
                 chatId: id,
-                createdAt: messages.at(-1)?.createdAt as Date,
+                createdAt: messages.at(-1)?.metadata.createdAt as Date,
               });
               setIsForkLoading(false);
             }}

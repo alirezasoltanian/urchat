@@ -11,7 +11,7 @@ export const PreviewAttachment = ({
 }: {
   attachment: Attachment;
   isUploading?: boolean;
-  isInChat: boolean;
+  isInChat?: boolean;
 }) => {
   const { name, url, contentType } = attachment;
   console.log("attachmentattachment", attachment);

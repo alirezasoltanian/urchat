@@ -1,4 +1,4 @@
-import type { Attachment, UIMessage } from "ai";
+import type { UIMessage } from "ai";
 import { PreviewMessage, ThinkingMessage } from "./message";
 import { Greeting } from "./greeting";
 import { Dispatch, memo, SetStateAction, useEffect } from "react";
@@ -6,7 +6,7 @@ import equal from "fast-deep-equal";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { motion } from "motion/react";
 import { useMessages } from "@/hooks/use-messages";
-import type { ChatMessage } from "@/types";
+import type { Attachment, ChatMessage } from "@/types";
 import { PromptSystem } from "./prompt-system";
 import { Vote } from "@/db/schema";
 
@@ -19,7 +19,7 @@ interface MessagesProps {
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   onQuerySelect: (query: string) => void;
-  handleInputChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  setInput: Dispatch<SetStateAction<string>>;
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
 }
 
@@ -32,7 +32,7 @@ function PureMessages({
   regenerate,
   isReadonly,
   onQuerySelect,
-  handleInputChange,
+  setInput,
   setAttachments,
 }: MessagesProps) {
   const {
@@ -66,7 +66,7 @@ function PureMessages({
               ? votes.find((vote) => vote.messageId === message.id)
               : undefined
           }
-          handleInputChange={handleInputChange}
+          setInput={setInput}
           setAttachments={setAttachments}
           onQuerySelect={onQuerySelect}
           setMessages={setMessages}

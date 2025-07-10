@@ -14,6 +14,7 @@ export const myProvider = customProvider({
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     }),
     "title-model": openai("gpt-3.5-turbo"),
+    openai: openai("gpt-4.1"),
     "artifact-model": xai("grok-2-1212"),
   },
   imageModels: {

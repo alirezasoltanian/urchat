@@ -1,4 +1,4 @@
-import type { CoreAssistantMessage, CoreToolMessage } from "ai";
+import type { CoreAssistantMessage, CoreToolMessage, UIMessagePart } from "ai";
 
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -6,6 +6,9 @@ import { twMerge } from "tailwind-merge";
 import { ChatSDKError, type ErrorCode } from "@/lib/errors";
 
 import { models } from "./ai/models";
+import { ChatMessage, ChatTools, CustomUIDataTypes } from "@/types";
+import { DBMessage } from "@/db/schema";
+import { formatISO } from "date-fns";
 export const createUrlStorage = (id: string) => {
   return `${process.env.S3_STORAGE_URL}/${id}`;
 };
@@ -78,6 +81,16 @@ export async function fetchClient(input: RequestInfo, init?: RequestInit) {
 
 export function sanitizeText(text: string) {
   return text.replace("<has_function_call>", "");
+}
+export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
+  return messages.map((message) => ({
+    id: message.id,
+    role: message.role as "user" | "assistant" | "system",
+    parts: message.parts as UIMessagePart<CustomUIDataTypes, ChatTools>[],
+    metadata: {
+      createdAt: formatISO(message.createdAt),
+    },
+  }));
 }
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);

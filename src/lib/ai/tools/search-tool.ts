@@ -1,10 +1,11 @@
 import { generateText, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { searchSchema } from "@/lib/validations/search";
+import { z } from "zod";
 
 export const searchTool = tool({
-  description: "Search ",
-  parameters: searchSchema,
+  description: "Search",
+  inputSchema: z.object({}),
   execute: async () => {
     try {
       const { text, sources } = await generateText({
@@ -21,7 +22,7 @@ export const searchTool = tool({
         sources: sources,
       };
     } catch (error) {
-      console.error("Video Search API error:", error);
+      console.error("Search API error:", error);
       return null;
     }
   },

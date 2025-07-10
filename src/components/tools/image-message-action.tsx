@@ -1,23 +1,21 @@
-import { Attachment, FilePart } from "ai";
 import { CaseLower, Download, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { setCookie } from "@/lib/cookies";
-import { createModelId } from "@/lib/utils";
 import { generateId } from "@/lib/id";
 import { Dispatch, SetStateAction } from "react";
+import { Attachment } from "@/types";
 
 function ImageMessageAction({
   url,
   description,
 
-  handleInputChange,
+  setInput,
   setAttachments,
 }: {
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   url: string;
   description?: string;
-  handleInputChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  setInput: Dispatch<SetStateAction<string>>;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -26,13 +24,7 @@ function ImageMessageAction({
           variant="ghost"
           size="icon"
           onClick={() => {
-            const syntheticEvent = {
-              target: {
-                value: description,
-              },
-            } as React.ChangeEvent<HTMLTextAreaElement>;
-
-            handleInputChange?.(syntheticEvent);
+            setInput(description);
           }}
         >
           <CaseLower className="size-4" />

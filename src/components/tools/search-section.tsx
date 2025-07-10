@@ -1,8 +1,8 @@
-import { ToolInvocation } from "ai";
 import { TextShimmer } from "../core/text-shimmer";
 import { useState } from "react";
 import ReModal from "../reuseable/re-modal";
 import Link from "next/link";
+import { ChatTools } from "@/types";
 interface Source {
   id: string;
   url: string;
@@ -13,21 +13,9 @@ interface Result {
   text: string;
   sources: Source[];
 }
-function SearchSection({ tool }: { tool: ToolInvocation }) {
+function SearchSection({ tool }: { tool: ChatTools["search"] }) {
   const [open, setOpen] = useState(false);
   console.log("tooltooltooltool", tool);
-
-  switch (tool.state) {
-    case "call":
-      return (
-        <TextShimmer
-          duration={1.2}
-          className="text-xl font-medium [--base-color:var(--color-blue-500)] [--base-gradient-color:var(--color-blue-200)] dark:[--base-color:var(--color-blue-700)] dark:[--base-gradient-color:var(--color-blue-400)]"
-        >
-          Search the web
-        </TextShimmer>
-      );
-  }
 
   return (
     <ReModal
@@ -36,7 +24,7 @@ function SearchSection({ tool }: { tool: ToolInvocation }) {
       title="Sources"
       renderButton={() => (
         <div className="flex hover:cursor-pointer items-center  hover:bg-muted-foreground py-1 pr-2 pl-5 rounded-full  ">
-          {tool.result.sources.slice(0, 3).map((source: Source) => {
+          {tool.output.sources.slice(0, 3).map((source: Source) => {
             const hostname = new URL(source.url).hostname;
             const favicon = `https://www.google.com/s2/favicons?domain=${hostname}.au&sz=32`;
             return (
@@ -54,7 +42,7 @@ function SearchSection({ tool }: { tool: ToolInvocation }) {
       )}
     >
       <div>
-        {tool.result.sources.slice(0, 3).map((source: Source) => {
+        {tool.output.sources.slice(0, 3).map((source: Source) => {
           const hostname = new URL(source.url).hostname;
           const favicon = `https://www.google.com/s2/favicons?domain=${hostname}.au&sz=32`;
           return (

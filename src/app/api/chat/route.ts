@@ -1,8 +1,10 @@
+import { VisibilityType } from "@/components/visibility-selector";
 import type { Chat } from "@/db/schema";
 import { generateTitleFromUserMessage } from "@/lib/actions/chat";
 import { decreaseToken, getChatToken } from "@/lib/actions/user";
-import { DEFAULT_MODEL } from "@/lib/ai/models";
+import { ChatModel, DEFAULT_MODEL } from "@/lib/ai/models";
 import { systemPrompt } from "@/lib/ai/prompts";
+import { myProvider } from "@/lib/ai/providers";
 import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { auth } from "@/lib/auth";
@@ -16,16 +18,21 @@ import {
   saveChat,
   saveMessages,
 } from "@/lib/queries/chat";
-import { generateUUID, getTrailingMessageId } from "@/lib/utils";
+import {
+  convertToUIMessages,
+  generateUUID,
+  getTrailingMessageId,
+} from "@/lib/utils";
 import {
   postRequestBodySchema,
   type PostRequestBody,
 } from "@/lib/validations/chat";
+import { ChatMessage } from "@/types";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import {
-  appendClientMessage,
-  appendResponseMessages,
-  createDataStream,
+  convertToModelMessages,
+  createUIMessageStream,
+  JsonToSseTransformStream,
   smoothStream,
   stepCountIs,
   streamText,
@@ -66,14 +73,27 @@ export async function POST(request: Request) {
 
   try {
     const json = await request.json();
+
+    console.dir({ aaa: "adasdasf", json: json }, { depth: null });
     requestBody = postRequestBodySchema.parse(json);
-  } catch (_) {
+  } catch (error) {
+    console.log("first4566", error);
     return new ChatSDKError("bad_request:api").toResponse();
   }
+  console.log("firs1111t", requestBody);
 
   try {
-    const { id, message, selectedChatModel, selectedVisibilityType } =
-      requestBody;
+    const {
+      id,
+      message,
+      selectedChatModel,
+      selectedVisibilityType,
+    }: {
+      id: string;
+      message: ChatMessage;
+      selectedChatModel: ChatModel["id"];
+      selectedVisibilityType: VisibilityType;
+    } = requestBody;
 
     console.log("222222", message, selectedChatModel, selectedVisibilityType);
     const session = await auth.api.getSession({
@@ -110,14 +130,10 @@ export async function POST(request: Request) {
       }
     }
 
-    const previousMessages = await getMessagesByChatId({ id });
-    console.log("6666", previousMessages);
+    const messagesFromDb = await getMessagesByChatId({ id });
+    const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
-    const messages = appendClientMessage({
-      // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
-      messages: previousMessages,
-      message,
-    });
+    const messages = convertToModelMessages(uiMessages);
 
     await saveMessages({
       messages: [
@@ -126,7 +142,7 @@ export async function POST(request: Request) {
           id: message.id,
           role: "user",
           parts: message.parts,
-          attachments: message.experimental_attachments ?? [],
+          attachments: [],
         },
       ],
     });
@@ -160,81 +176,62 @@ export async function POST(request: Request) {
     // const model = createOpenRouter({
     //   apiKey: process.env.OPENROUTER_API_KEY,
     // }).chat(openrouterFormat);
-    const stream = createDataStream({
-      execute: (dataStream) => {
+    const stream = createUIMessageStream({
+      execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model,
+          model: myProvider.languageModel("openai"),
           system,
           messages,
           stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),
+          onFinish: async ({ usage }) => {
+            const { totalTokens } = usage;
+            after(() => {
+              totalTokens && decreaseToken(totalTokens);
+            });
+            after(() => {
+              totalTokens && decreaseToken(totalTokens);
+            });
+          },
           experimental_activeTools: searchMode
             ? ["search", "generateImage"]
             : ["generateImage"],
 
           experimental_transform: smoothStream({ chunking: "word" }),
-          experimental_generateMessageId: generateUUID,
           tools: {
             search: searchTool,
             generateImage: generateImageTool(id),
           },
-          onFinish: async ({ response, usage }) => {
-            if (session.user?.id) {
-              try {
-                const assistantId = getTrailingMessageId({
-                  messages: response.messages.filter(
-                    (message) => message.role === "assistant"
-                  ),
-                });
-
-                if (!assistantId) {
-                  throw new Error("No assistant message found!");
-                }
-
-                const [, assistantMessage] = appendResponseMessages({
-                  messages: [message],
-                  responseMessages: response.messages,
-                });
-                console.log("hellohello111", assistantMessage);
-
-                await saveMessages({
-                  messages: [
-                    {
-                      id: assistantId,
-                      chatId: id,
-                      role: assistantMessage.role,
-                      parts: assistantMessage.parts,
-                      attachments:
-                        assistantMessage.experimental_attachments ?? [],
-                    },
-                  ],
-                });
-                const { totalTokens } = usage;
-                after(() => {
-                  totalTokens && decreaseToken(totalTokens);
-                });
-                after(() => {
-                  totalTokens && decreaseToken(totalTokens);
-                });
-
-                dataStream.writeData({
-                  type: "append-message",
-                  message: JSON.stringify(assistantMessage),
-                });
-                console.log("hellohello222", assistantMessage);
-              } catch (_) {
-                console.error("Failed to save chat");
-              }
-            }
-          },
         });
 
-        // result.consumeStream();
+        result.consumeStream();
 
-        result.mergeIntoDataStream(dataStream, {
-          sendReasoning: true,
-        });
+        dataStream.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+          })
+        );
         // console.log("firstfirstfirst10101222", result);
       },
+
+      onFinish: async ({ messages }) => {
+        if (session.user?.id) {
+          try {
+            await saveMessages({
+              messages: messages.map((message) => ({
+                id: message.id,
+                role: message.role,
+                parts: message.parts,
+                attachments: [],
+                chatId: id,
+              })),
+            });
+          } catch (_) {
+            console.error("Failed to save chat");
+          }
+        }
+      },
+      generateId: generateUUID,
+
       onError: (error) => {
         console.log("firstfirstfirstfirst555", error);
 
@@ -244,14 +241,15 @@ export async function POST(request: Request) {
 
     // const streamContext = getStreamContext();
     // console.log("firstfirstfirst10101", stream);
-    return new Response(stream);
+
+    return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
 
     // if (streamContext) {
     //   return new Response(
     //     await streamContext.resumableStream(streamId, () => stream)
     //   );
     // } else {
-    //   return new Response(stream);
+    //   return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
     // }
   } catch (error) {
     if (error instanceof ChatSDKError) {
@@ -260,103 +258,6 @@ export async function POST(request: Request) {
       return error.toResponse();
     }
   }
-}
-
-export async function GET(request: Request) {
-  // const streamContext = getStreamContext();
-  const resumeRequestedAt = new Date();
-
-  // if (!streamContext) {
-  //   return new Response(null, { status: 204 });
-  // }
-
-  const { searchParams } = new URL(request.url);
-  const chatId = searchParams.get("chatId");
-
-  if (!chatId) {
-    return new ChatSDKError("bad_request:api").toResponse();
-  }
-
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user) {
-    return new ChatSDKError("unauthorized:chat").toResponse();
-  }
-
-  let chat: Chat;
-
-  try {
-    chat = await getChatById({ id: chatId });
-  } catch {
-    return new ChatSDKError("not_found:chat").toResponse();
-  }
-
-  if (!chat) {
-    return new ChatSDKError("not_found:chat").toResponse();
-  }
-
-  if (chat.visibility === "private" && chat.userId !== session.user.id) {
-    return new ChatSDKError("forbidden:chat").toResponse();
-  }
-
-  const streamIds = await getStreamIdsByChatId({ chatId });
-
-  if (!streamIds.length) {
-    return new ChatSDKError("not_found:stream").toResponse();
-  }
-
-  const recentStreamId = streamIds.at(-1);
-
-  if (!recentStreamId) {
-    return new ChatSDKError("not_found:stream").toResponse();
-  }
-
-  const emptyDataStream = createDataStream({
-    execute: () => {},
-  });
-
-  // const stream = await streamContext.resumableStream(
-  //   recentStreamId,
-  //   () => emptyDataStream
-  // );
-
-  /*
-   * For when the generation is streaming during SSR
-   * but the resumable stream has concluded at this point.
-   */
-  // if (!stream) {
-  //   const messages = await getMessagesByChatId({ id: chatId });
-  //   const mostRecentMessage = messages.at(-1);
-
-  //   if (!mostRecentMessage) {
-  //     return new Response(emptyDataStream, { status: 200 });
-  //   }
-
-  //   if (mostRecentMessage.role !== "assistant") {
-  //     return new Response(emptyDataStream, { status: 200 });
-  //   }
-
-  //   const messageCreatedAt = new Date(mostRecentMessage.createdAt);
-
-  //   if (differenceInSeconds(resumeRequestedAt, messageCreatedAt) > 15) {
-  //     return new Response(emptyDataStream, { status: 200 });
-  //   }
-
-  //   const restoredStream = createDataStream({
-  //     execute: (buffer) => {
-  //       buffer.writeData({
-  //         type: "append-message",
-  //         message: JSON.stringify(mostRecentMessage),
-  //       });
-  //     },
-  //   });
-
-  //   return new Response(restoredStream, { status: 200 });
-  // }
-
-  // return new Response(stream, { status: 200 });
 }
 
 export async function DELETE(request: Request) {

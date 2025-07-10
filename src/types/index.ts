@@ -1,6 +1,7 @@
 import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { InferUITool, UIMessage } from "ai";
+import { z } from "zod";
 
 export type DataPart = { type: "append-message"; message: string };
 export interface UploadedFile {
@@ -92,3 +93,8 @@ export type ChatMessage = UIMessage<
   CustomUIDataTypes,
   ChatTools
 >;
+export interface Attachment {
+  name: string;
+  url: string;
+  contentType: string;
+}

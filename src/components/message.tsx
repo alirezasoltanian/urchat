@@ -1,6 +1,6 @@
 "use client";
 
-import type { Attachment, UIMessage } from "ai";
+import type { UIMessage } from "ai";
 import cx from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { Dispatch, SetStateAction, memo, useState } from "react";
@@ -21,7 +21,10 @@ import { Vote } from "@/db/schema";
 import { GlowEffect } from "./core/glow-effect";
 import { Tooltip } from "./reuseable/re-tooltip";
 import CopyButton from "./CopyButton";
-import { ChatMessage } from "@/types";
+import { Attachment, ChatMessage } from "@/types";
+import { BorderTrail } from "./core/border-trail";
+import { Image } from "lucide-react";
+import { TextShimmer } from "./core/text-shimmer";
 
 const PurePreviewMessage = ({
   chatId,
@@ -33,11 +36,11 @@ const PurePreviewMessage = ({
   isReadonly,
   requiresScrollPadding,
   onQuerySelect,
-  handleInputChange,
+  setInput,
   setAttachments,
 }: {
   chatId: string;
-  message: UIMessage;
+  message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
@@ -45,12 +48,14 @@ const PurePreviewMessage = ({
   isReadonly: boolean;
   requiresScrollPadding: boolean;
   onQuerySelect: (query: string) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  setInput: Dispatch<SetStateAction<string>>;
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
   console.log("firstfirstfirstfirst222", message);
-
+  const attachmentsFromMessage = message.parts.filter(
+    (part) => part.type === "file"
+  );
   return (
     <AnimatePresence>
       <motion.div
@@ -79,31 +84,34 @@ const PurePreviewMessage = ({
               { "items-start": message.role === "assistant" }
             )}
           >
-            {message.experimental_attachments &&
-              message.experimental_attachments.length > 0 && (
-                <div
-                  data-testid={`message-attachments`}
-                  className="flex flex-row justify-end gap-2"
-                >
-                  {message.experimental_attachments.map((attachment) => (
-                    <PreviewAttachment
-                      key={attachment.url}
-                      attachment={attachment}
-                    />
-                  ))}
-                </div>
-              )}
+            {attachmentsFromMessage.length > 0 && (
+              <div
+                data-testid={`message-attachments`}
+                className="flex flex-row justify-end gap-2"
+              >
+                {attachmentsFromMessage.map((attachment) => (
+                  <PreviewAttachment
+                    key={attachment.url}
+                    attachment={{
+                      name: attachment.filename ?? "file",
+                      contentType: attachment.mediaType,
+                      url: attachment.url,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
 
             {message.parts?.map((part, index) => {
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
 
-              if (type === "reasoning") {
+              if (type === "reasoning" && part.text?.trim().length > 0) {
                 return (
                   <MessageReasoning
                     key={key}
                     isLoading={isLoading}
-                    reasoning={part.reasoning}
+                    reasoning={part.text}
                   />
                 );
               }
@@ -121,11 +129,11 @@ const PurePreviewMessage = ({
                             key={`action-${message.id}`}
                             chatId={chatId}
                             messageId={message.id}
-                            text={
-                              message.parts?.find(
-                                (part) => part?.type === "text" && !!part.text
-                              )?.text || ""
-                            }
+                            text={message.parts
+                              ?.filter((part) => part.type === "text")
+                              .map((part) => part.text)
+                              .join("\n")
+                              .trim()}
                             vote={vote}
                             isLoading={isLoading}
                             createdAt={message.createdAt}
@@ -196,22 +204,73 @@ const PurePreviewMessage = ({
                 }
               }
 
-              if (type === "tool-invocation") {
-                const { toolInvocation } = part;
-                const { toolName, toolCallId, state } = toolInvocation;
-                return (
-                  <div key={toolCallId}>
-                    {toolName === "generateImage" ? (
-                      <GenerateImage
-                        setAttachments={setAttachments}
-                        tool={toolInvocation}
-                        handleInputChange={handleInputChange}
+              if (type === "tool-generateImage") {
+                console.log("tool-generateImage", type, part.state);
+                if (part.state === "input-streaming") {
+                  return (
+                    <div className="relative size-52 flex-col items-center justify-center rounded-md bg-zinc-200 px-5 py-2 dark:bg-zinc-800">
+                      <BorderTrail
+                        style={{
+                          boxShadow:
+                            "0px 0px 60px 30px rgb(255 255 255 / 50%), 0 0 100px 60px rgb(0 0 0 / 50%), 0 0 140px 90px rgb(0 0 0 / 50%)",
+                        }}
+                        size={100}
                       />
-                    ) : toolName === "search" ? (
-                      <SearchSection tool={toolInvocation} />
-                    ) : null}
-                  </div>
-                );
+                      <div
+                        className="flex h-full animate-pulse flex-col items-center justify-center space-y-2"
+                        role="status"
+                        aria-label="Loading..."
+                      >
+                        <motion.div
+                          animate={{
+                            color: [
+                              "#0894FF",
+                              "#C959DD",
+                              "#FF2E54",
+                              "#FF9004",
+                              "#0894FF",
+                            ],
+                          }}
+                          transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                        >
+                          <Image size={64} />
+                        </motion.div>
+                      </div>
+                    </div>
+                  );
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <GenerateImage
+                      setAttachments={setAttachments}
+                      tool={{ output: part?.output, input: part.input }}
+                      setInput={setInput}
+                    />
+                  );
+                }
+              }
+              if (type === "tool-search") {
+                if (part.state === "input-streaming") {
+                  return (
+                    <TextShimmer
+                      duration={1.2}
+                      className="text-xl font-medium [--base-color:var(--color-blue-500)] [--base-gradient-color:var(--color-blue-200)] dark:[--base-color:var(--color-blue-700)] dark:[--base-gradient-color:var(--color-blue-400)]"
+                    >
+                      Search the web
+                    </TextShimmer>
+                  );
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <SearchSection
+                      tool={{ output: part?.output, input: part.input }}
+                    />
+                  );
+                }
               }
             })}
           </div>

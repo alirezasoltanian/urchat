@@ -7,6 +7,7 @@ import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { getChatById, getMessagesByChatId } from "@/lib/queries/chat";
 import type { Attachment, UIMessage } from "ai";
 import { auth } from "@/lib/auth";
+import { convertToUIMessages } from "@/lib/utils";
 
 export default async function Page(props: {
   params: Promise<{ chatId: string }>;
@@ -35,19 +36,6 @@ export default async function Page(props: {
   const messagesFromDb = await getMessagesByChatId({
     id: chatId,
   });
-
-  function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
-    return messages.map((message) => ({
-      id: message.id,
-      parts: message.parts as UIMessage["parts"],
-      role: message.role as UIMessage["role"],
-      // Note: content will soon be deprecated in @ai-sdk/react
-      content: "",
-      createdAt: message.createdAt,
-      experimental_attachments:
-        (message.attachments as Array<Attachment>) ?? [],
-    }));
-  }
 
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get("chat-model");
