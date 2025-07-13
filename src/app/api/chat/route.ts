@@ -1,10 +1,8 @@
 import { VisibilityType } from "@/components/visibility-selector";
-import type { Chat } from "@/db/schema";
 import { generateTitleFromUserMessage } from "@/lib/actions/chat";
 import { decreaseToken, getChatToken } from "@/lib/actions/user";
 import { ChatModel, DEFAULT_MODEL } from "@/lib/ai/models";
 import { systemPrompt } from "@/lib/ai/prompts";
-import { myProvider } from "@/lib/ai/providers";
 import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { auth } from "@/lib/auth";
@@ -14,22 +12,16 @@ import {
   deleteChatById,
   getChatById,
   getMessagesByChatId,
-  getStreamIdsByChatId,
   saveChat,
   saveMessages,
 } from "@/lib/queries/chat";
-import {
-  convertToUIMessages,
-  generateUUID,
-  getTrailingMessageId,
-} from "@/lib/utils";
+import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import {
   postRequestBodySchema,
   type PostRequestBody,
 } from "@/lib/validations/chat";
 import { ChatMessage } from "@/types";
 import { openai } from "@ai-sdk/openai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import {
   convertToModelMessages,
   createUIMessageStream,
