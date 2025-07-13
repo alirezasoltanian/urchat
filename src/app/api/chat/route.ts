@@ -7,6 +7,7 @@ import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { auth } from "@/lib/auth";
 import { ChatSDKError } from "@/lib/errors";
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import {
   createStreamId,
   deleteChatById,
@@ -166,13 +167,14 @@ export async function POST(request: Request) {
     //   apiKey: process.env.OPENROUTER_API_KEY,
     //   baseURL: "https://openrouter.ai/api/v1",
     // }).chatModel(openrouterFormat);
-    // const model = createOpenRouter({
-    //   apiKey: process.env.OPENROUTER_API_KEY,
-    // }).chat(openrouterFormat);
+    const model = createOpenRouter({
+      apiKey: process.env.OPENROUTER_API_KEY,
+    }).chat(openrouterFormat);
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model: openai("gpt-4-turbo"),
+          // model: openai("gpt-4-turbo"),
+          model,
           system,
           messages,
           stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),

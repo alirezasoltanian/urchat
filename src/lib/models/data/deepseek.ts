@@ -1,11 +1,9 @@
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { ModelConfig } from "../types";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 const getOpenRouterProvider = (apiKey?: string) =>
-  createOpenAICompatible({
-    name: "openrouter",
+  createOpenRouter({
     apiKey: apiKey || process.env.OPENROUTER_API_KEY,
-    baseURL: "https://openrouter.ai/api/v1",
   });
 
 const deepseekModels: ModelConfig[] = [

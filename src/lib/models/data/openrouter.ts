@@ -1,11 +1,9 @@
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { ModelConfig } from "../types";
 
 const openrouterProvider = (apiKey?: string) =>
-  createOpenAICompatible({
-    name: "openrouter",
+  createOpenRouter({
     apiKey: apiKey || process.env.OPENROUTER_API_KEY,
-    baseURL: "https://openrouter.ai/api/v1",
   });
 
 export const openrouterModels: ModelConfig[] = [
