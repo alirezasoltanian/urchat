@@ -26,7 +26,7 @@ import { BorderTrail } from "./core/border-trail";
 import { Image } from "lucide-react";
 import { TextShimmer } from "./core/text-shimmer";
 
-const PurePreviewMessage = ({
+export const PurePreviewMessage = ({
   chatId,
   message,
   vote,
@@ -206,7 +206,7 @@ const PurePreviewMessage = ({
 
               if (type === "tool-generateImage") {
                 console.log("tool-generateImage", type, part.state);
-                if (part.state === "input-streaming") {
+                if (part.state !== "output-available") {
                   return (
                     <div className="relative size-52 flex-col items-center justify-center rounded-md bg-zinc-200 px-5 py-2 dark:bg-zinc-800">
                       <BorderTrail
@@ -254,7 +254,7 @@ const PurePreviewMessage = ({
                 }
               }
               if (type === "tool-search") {
-                if (part.state === "input-streaming") {
+                if (part.state !== "output-available") {
                   return (
                     <TextShimmer
                       duration={1.2}
@@ -284,10 +284,9 @@ export const PreviewMessage = memo(
   PurePreviewMessage,
   (prevProps, nextProps) => {
     if (prevProps.isLoading !== nextProps.isLoading) return false;
-    if (prevProps.message.id !== nextProps.message.id) return false;
     if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
       return false;
-    if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    if (!equal(prevProps.message, nextProps.message)) return false;
     if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;

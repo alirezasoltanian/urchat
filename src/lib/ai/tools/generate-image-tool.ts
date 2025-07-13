@@ -1,12 +1,11 @@
-import { after } from "next/server";
 import { openai } from "@ai-sdk/openai";
-import { type FilePart, experimental_generateImage as generateImage } from "ai";
+import { experimental_generateImage as generateImage, tool } from "ai";
+import { after } from "next/server";
 import { z } from "zod";
-import { tool } from "ai";
 
-import { decreaseToken } from "@/lib/actions/user";
 import { uploadFileToS3 } from "@/app/_actions/clientFileUploader";
 import { uploadFilesToDB } from "@/lib/actions/file";
+import { decreaseToken } from "@/lib/actions/user";
 
 export const generateImageTool = (id: string) =>
   tool({

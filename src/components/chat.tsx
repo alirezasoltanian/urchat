@@ -10,7 +10,7 @@ import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { Messages } from "./messages";
@@ -101,7 +101,9 @@ export function Chat({
       // }
     },
   });
-
+  useEffect(() => {
+    console.log("messagemessagemessage", messages.at(-1));
+  }, [messages]);
   const onQuerySelect = (query: string) => {
     if (!messages.length) {
       window.history.replaceState({}, "", `/chat/${id}`);

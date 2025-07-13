@@ -8,14 +8,14 @@ export const searchTool = tool({
   inputSchema: z.object({}),
   execute: async () => {
     try {
-      const { text, sources } = await generateText({
+      const { text, sources, ...queryqueryquery } = await generateText({
         model: openai.responses("gpt-4o-mini"),
         prompt: "What happened in San Francisco last week?",
         tools: {
           web_search_preview: openai.tools.webSearchPreview({}),
         },
       });
-      console.log("queryqueryquery", text, sources);
+      console.log("queryqueryquery", text, sources, queryqueryquery);
 
       return {
         text: text,

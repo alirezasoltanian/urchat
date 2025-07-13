@@ -28,6 +28,7 @@ import {
   type PostRequestBody,
 } from "@/lib/validations/chat";
 import { ChatMessage } from "@/types";
+import { openai } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import {
   convertToModelMessages,
@@ -168,18 +169,18 @@ export async function POST(request: Request) {
 
     const openrouterFormat = selectedModel.replace(":", "/");
 
-    const model = createOpenAICompatible({
-      name: "openrouter",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      baseURL: "https://openrouter.ai/api/v1",
-    }).chatModel(openrouterFormat);
+    // const model = createOpenAICompatible({
+    //   name: "openrouter",
+    //   apiKey: process.env.OPENROUTER_API_KEY,
+    //   baseURL: "https://openrouter.ai/api/v1",
+    // }).chatModel(openrouterFormat);
     // const model = createOpenRouter({
     //   apiKey: process.env.OPENROUTER_API_KEY,
     // }).chat(openrouterFormat);
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model: myProvider.languageModel("openai"),
+          model: openai("gpt-4-turbo"),
           system,
           messages,
           stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),

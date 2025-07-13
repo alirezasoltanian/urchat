@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai";
-import { PreviewMessage, ThinkingMessage } from "./message";
+import { PreviewMessage, PurePreviewMessage, ThinkingMessage } from "./message";
 import { Greeting } from "./greeting";
 import { Dispatch, memo, SetStateAction, useEffect } from "react";
 import equal from "fast-deep-equal";
@@ -47,7 +47,7 @@ function PureMessages({
     status,
   });
 
-  console.log("datadata", messages);
+  console.log("datadata22222d", messages);
   return (
     <div
       ref={messagesContainerRef}
@@ -56,7 +56,7 @@ function PureMessages({
       {messages.length === 0 && <PromptSystem onQuery={onQuerySelect} />}
 
       {messages.map((message, index) => (
-        <PreviewMessage
+        <PurePreviewMessage
           key={message.id}
           chatId={chatId}
           message={message}

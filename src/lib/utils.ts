@@ -39,10 +39,19 @@ export async function fetchWithErrorHandlers(
     const response = await fetch(input, init);
 
     if (!response.ok) {
-      const { code, cause } = await response.json();
-      throw new ChatSDKError(code as ErrorCode, cause);
+      const contentType = response.headers.get("content-type") || "";
+
+      // فقط در صورتی که JSON هست، بدنه رو بخون
+      if (contentType.includes("application/json")) {
+        const { code, cause } = await response.json();
+        throw new ChatSDKError(code as ErrorCode, cause);
+      }
+
+      // اگر نه، یه خطای عمومی بنداز
+      throw new ChatSDKError("internal_server_error:chat");
     }
 
+    // ✅ فقط همین رو برگردون، بدنش دست useChat بمونه
     return response;
   } catch (error: unknown) {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
