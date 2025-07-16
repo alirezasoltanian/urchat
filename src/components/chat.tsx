@@ -1,14 +1,12 @@
 "use client";
 
 import { ChatHeader } from "@/components/chat-header";
-import { useAutoResume } from "@/hooks/use-auto-resume";
 
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import { ChatSDKError } from "@/lib/errors";
 
 import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import { DefaultChatTransport } from "ai";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
@@ -18,20 +16,20 @@ import { Messages } from "./messages";
 import { getChatHistoryPaginationKey } from "./sidebar-history";
 import { toast } from "./toast";
 
+import { shortcuts } from "@/constants";
+import { Vote } from "@/db/schema";
+import { forkAction } from "@/lib/queries/chat";
+import { Attachment, ChatMessage } from "@/types";
 import { User } from "better-auth";
+import { GitFork } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { MultimodalInput } from "./multimodal-input";
 import ReModal from "./reuseable/re-modal";
 import { Badge } from "./ui/badge";
-import { useSidebar } from "./ui/sidebar";
-import type { VisibilityType } from "./visibility-selector";
-import { forkAction } from "@/lib/queries/chat";
 import { Button } from "./ui/button";
-import { ForkKnife, GitFork } from "lucide-react";
+import { useSidebar } from "./ui/sidebar";
 import Spinner from "./ui/spinner";
-import { shortcuts } from "@/constants";
-import { Vote } from "@/db/schema";
-import { Attachment, ChatMessage } from "@/types";
+import type { VisibilityType } from "./visibility-selector";
 
 export function Chat({
   id,

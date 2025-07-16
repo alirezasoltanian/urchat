@@ -16,11 +16,12 @@
     "db:studio": "drizzle-kit studio --port 5001"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.0-beta.7",
-    "@ai-sdk/react": "^2.0.0-beta.15",
-    "@ai-sdk/xai": "^2.0.0-beta.4",
-    "@aws-sdk/client-s3": "^3.844.0",
+    "@ai-sdk/openai": "^2.0.0-beta.9",
+    "@ai-sdk/react": "^2.0.0-beta.21",
+    "@ai-sdk/xai": "^2.0.0-beta.8",
+    "@aws-sdk/client-s3": "^3.846.0",
     "@hookform/resolvers": "^5.1.1",
+    "@openrouter/ai-sdk-provider": "^1.0.0-beta.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.2",
@@ -43,8 +44,8 @@
     "@trpc/server": "^11.4.3",
     "@trpc/tanstack-react-query": "^11.4.3",
     "@upstash/ratelimit": "^2.0.5",
-    "@vercel/functions": "^2.2.3",
-    "ai": "^5.0.0-beta.15",
+    "@vercel/functions": "^2.2.4",
+    "ai": "^5.0.0-beta.21",
     "better-auth": "^1.2.12",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
@@ -54,13 +55,12 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.0",
     "drizzle-kit": "^0.31.4",
-    "drizzle-orm": "^0.44.2",
+    "drizzle-orm": "^0.44.3",
     "embla-carousel-react": "^8.6.0",
-    "exa-js": "^1.8.20",
     "fast-deep-equal": "^3.1.3",
     "lucide-react": "^0.525.0",
-    "motion": "^12.23.3",
-    "next": "^15.3.5",
+    "motion": "^12.23.6",
+    "next": "^15.4.1",
     "next-themes": "^0.4.6",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
@@ -80,8 +80,7 @@
     "usehooks-ts": "^3.1.1",
     "vaul": "^1.1.2",
     "zod": "^4.0.5",
-    "zustand": "^5.0.6",
-    "@openrouter/ai-sdk-provider": "1.0.0-beta.1"
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -89,6 +88,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "react-scan": "^0.4.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

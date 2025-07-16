@@ -7,7 +7,7 @@ import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { auth } from "@/lib/auth";
 import { ChatSDKError } from "@/lib/errors";
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import {
   createStreamId,
   deleteChatById,
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
         },
       ],
     });
-    console.log("4444", selectedChatModel, selectedVisibilityType);
+    console.log("4444", message, selectedChatModel, selectedVisibilityType);
 
     const cookieStore = await cookies();
     const modelJson = cookieStore.get("selected-model")?.value;
@@ -161,6 +161,7 @@ export async function POST(request: Request) {
     const system = systemPrompt();
 
     const openrouterFormat = selectedModel.replace(":", "/");
+    console.log("44411", openrouterFormat);
 
     // const model = createOpenAICompatible({
     //   name: "openrouter",
@@ -170,11 +171,13 @@ export async function POST(request: Request) {
     const model = createOpenRouter({
       apiKey: process.env.OPENROUTER_API_KEY,
     }).chat(openrouterFormat);
+    console.log("44422", model);
+
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          // model: openai("gpt-4-turbo"),
-          model,
+          model: openai("gpt-4-turbo"),
+          // model,
           system,
           messages,
           stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),
@@ -205,7 +208,7 @@ export async function POST(request: Request) {
             sendReasoning: true,
           })
         );
-        // console.log("firstfirstfirst10101222", result);
+        console.log("firstfirstfirst10101222", result);
       },
 
       onFinish: async ({ messages }) => {

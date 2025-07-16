@@ -215,3 +215,4 @@ export const FREE_MODELS_IDS = [
   "mistral-large-latest",
   "gpt-4.1-nano",
 ];
+export const ENABLE_REACT_SCAN = true;

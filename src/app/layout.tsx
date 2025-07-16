@@ -1,11 +1,10 @@
 import Providers from "@/components/providers";
+import { ThemeScript } from "@/components/theme-script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "../index.css";
 import { Suspense } from "react";
-import { ThemeScript } from "@/components/theme-script";
-
+import "../index.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

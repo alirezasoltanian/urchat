@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
-  console.log("4444", session);
+  console.log("4444777", session);
 
   if (!session?.user) {
     return new ChatSDKError("unauthorized:chat").toResponse();

@@ -23,7 +23,7 @@ export function CodeBlock({
     return (
       // <div className="not-prose flex flex-col my-2 w-[90%]">
       <pre
-        className={`  dark:bg-zinc-900 p-4 pt-2 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900`}
+        className={` my-3 dark:bg-zinc-900 p-4 pt-2 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900`}
       >
         <p className={`text-xs  py-2  `}>{language}</p>
         <div className="sticky top-5">
