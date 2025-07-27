@@ -93,7 +93,7 @@ const PROVIDERS: Provider[] = [
 
 export function ByokSection() {
   const queryClient = useQueryClient();
-  const { userKeyStatus, refreshUserKeyStatus, refreshModels } = useModel();
+  const { userKeyStatus, refreshAll } = useModel();
   const [selectedProvider, setSelectedProvider] =
     useState<string>("openrouter");
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
@@ -139,7 +139,8 @@ export function ByokSection() {
           ? `Your ${providerConfig?.name} API key has been saved and models have been added to your favorites.`
           : `Your ${providerConfig?.name} API key has been updated.`,
       });
-      await Promise.all([refreshUserKeyStatus(), refreshModels()]);
+      // Use refreshAll to ensure models, user key status, and favorites are all in sync after saving a key
+      await refreshAll();
       if (response.isNewKey) {
         queryClient.invalidateQueries({ queryKey: ["favorite-models"] });
       }
@@ -175,7 +176,7 @@ export function ByokSection() {
         type: "success",
         description: `Your ${providerConfig?.name} API key has been deleted.`,
       });
-      await Promise.all([refreshUserKeyStatus(), refreshModels()]);
+      await refreshAll();
       setApiKeys((prev) => ({ ...prev, [provider]: "" }));
       setDeleteDialogOpen(false);
       setProviderToDelete("");
