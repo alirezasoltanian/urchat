@@ -26,7 +26,7 @@ const buttonVariants = cva(
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
         badge: "h-6 px-2 text-xs",
-        icon: "size-9",
+        icon: "size-9 touch-hitbox",
         iconsm: "size-7 p-2",
       },
     },

@@ -3,7 +3,7 @@
 import type { UIMessage } from "ai";
 import cx from "classnames";
 import { AnimatePresence, motion } from "motion/react";
-import { Dispatch, SetStateAction, memo, useState } from "react";
+import { Dispatch, SetStateAction, memo, useCallback, useState } from "react";
 // import { DocumentToolCall, DocumentToolResult } from "./document";
 import { PencilEditIcon, SparklesIcon } from "./icons";
 import { Markdown } from "./markdown";
@@ -25,6 +25,7 @@ import { Attachment, ChatMessage } from "@/types";
 import { BorderTrail } from "./core/border-trail";
 import { Image } from "lucide-react";
 import { TextShimmer } from "./core/text-shimmer";
+import ChatTextHighlighter from "./chat-text-highlighter";
 
 export const PurePreviewMessage = ({
   chatId,
@@ -55,6 +56,28 @@ export const PurePreviewMessage = ({
   console.log("firstfirstfirstfirst222", message);
   const attachmentsFromMessage = message.parts.filter(
     (part) => part.type === "file"
+  );
+  const handleHighlight = useCallback(
+    (text: string) => {
+      const quotedText = `> ${text.replace(/\n/g, "\n> ")}\n\n`;
+      setInput((prev) => prev + quotedText);
+
+      // Focus the input after adding the quote
+      setTimeout(() => {
+        const inputElement = document.querySelector(
+          'textarea[placeholder*="Ask"]'
+        ) as HTMLTextAreaElement;
+        if (inputElement) {
+          inputElement.focus();
+          // Move cursor to end
+          inputElement.setSelectionRange(
+            inputElement.value.length,
+            inputElement.value.length
+          );
+        }
+      }, 100);
+    },
+    [setInput]
   );
   return (
     <AnimatePresence>
@@ -147,7 +170,17 @@ export const PurePreviewMessage = ({
                             message.role === "user",
                         })}
                       >
-                        <Markdown>{sanitizeText(part.text)}</Markdown>
+                        <ChatTextHighlighter
+                          onHighlight={handleHighlight}
+                          removeHighlightOnClick={true}
+                        >
+                          <ChatTextHighlighter
+                            onHighlight={handleHighlight}
+                            removeHighlightOnClick={true}
+                          >
+                            <Markdown>{sanitizeText(part.text)}</Markdown>
+                          </ChatTextHighlighter>
+                        </ChatTextHighlighter>
                       </div>
                       {message.role === "user" && !isReadonly && (
                         <div className="flex gap-2 absolute -bottom-[30px]">
