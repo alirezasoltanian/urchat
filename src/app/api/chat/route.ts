@@ -28,6 +28,7 @@ import {
   createUIMessageStream,
   JsonToSseTransformStream,
   smoothStream,
+  // markdownJoinerTransform,
   stepCountIs,
   streamText,
 } from "ai";
@@ -180,6 +181,10 @@ export async function POST(request: Request) {
           // model,
           system,
           messages,
+          experimental_transform: [
+            smoothStream({ chunking: "word" }),
+            // markdownJoinerTransform(),
+          ],
           stopWhen: searchMode ? stepCountIs(5) : stepCountIs(1),
           onFinish: async ({ usage }) => {
             const { totalTokens } = usage;
@@ -194,7 +199,6 @@ export async function POST(request: Request) {
             ? ["search", "generateImage"]
             : ["generateImage"],
 
-          experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             search: searchTool,
             generateImage: generateImageTool(id),
