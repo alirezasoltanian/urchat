@@ -84,7 +84,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 Ctrl+K
               </p>
             </Button>
-            <Link
+            {/* <Link
               className={cn(
                 buttonVariants({ variant: "ghost" }),
                 "justify-start"
@@ -101,7 +101,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 </span>{" "}
                 Library
               </p>
-            </Link>
+            </Link> */}
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>

@@ -9,7 +9,7 @@ export const searchTool = tool({
   execute: async () => {
     try {
       const { text, sources, ...queryqueryquery } = await generateText({
-        model: openai.responses("gpt-4o-mini"),
+        model: openai("gpt-5-nano"),
         prompt: "What happened in San Francisco last week?",
         tools: {
           web_search_preview: openai.tools.webSearchPreview({}),

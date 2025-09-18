@@ -5,6 +5,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "../index.css";
+import {
+  fontBase,
+  fontHeading,
+  fontMedium,
+  fontSemiHeading,
+} from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -63,7 +70,13 @@ export default async function RootLayout({
         <meta name="darkreader-lock" /> */}
       </head>
       <body
-        className={`antialiased ${geistSans.variable} ${geistMono.variable}`}
+        className={cn(
+          `font-base relative min-h-screen antialiased  ${geistSans.variable} ${geistMono.variable}`,
+          fontHeading.variable,
+          fontSemiHeading.variable,
+          fontMedium.variable,
+          fontBase.variable
+        )}
       >
         <Suspense fallback={null}>
           <Providers>

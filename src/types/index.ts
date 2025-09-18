@@ -2,6 +2,11 @@ import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
 import { InferUITool, UIMessage } from "ai";
 import { z } from "zod";
+import { diginextProductsTool } from "@/lib/ai/tools/diginext-products-tool";
+import { diginextCustomersTool } from "@/lib/ai/tools/diginext-customers-tool";
+import { diginextCreateInvoicesTool } from "@/lib/ai/tools/diginext-create-invoices-tool";
+import { diginextListInvoicesTool } from "@/lib/ai/tools/diginext-list-invoices-tool";
+import { diginextBusinessAnalysisTool } from "@/lib/ai/tools/diginext-business-analysis-tool";
 
 export type DataPart = { type: "append-message"; message: string };
 export interface UploadedFile {
@@ -10,6 +15,7 @@ export interface UploadedFile {
   key: string;
   type: string;
 }
+export type InvoiceStatus = "draft" | "issued" | "paid" | "void";
 
 export type StoredFile = {
   id: string;
@@ -87,6 +93,11 @@ type generateImageTool = InferUITool<ReturnType<typeof generateImageTool>>;
 export type ChatTools = {
   search: searchTool;
   generateImage: generateImageTool;
+  diginextProducts: InferUITool<typeof diginextProductsTool>;
+  diginextCustomers: InferUITool<typeof diginextCustomersTool>;
+  diginextCreateInvoices: InferUITool<typeof diginextCreateInvoicesTool>;
+  diginextListInvoices: InferUITool<typeof diginextListInvoicesTool>;
+  diginextBusinessAnalysis: InferUITool<typeof diginextBusinessAnalysisTool>;
 };
 export type ChatMessage = UIMessage<
   MessageMetadata,

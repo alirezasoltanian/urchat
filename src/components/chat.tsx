@@ -15,6 +15,7 @@ import { Messages } from "./messages";
 // import { MultimodalInput } from "./multimodal-input";
 import { getChatHistoryPaginationKey } from "./sidebar-history";
 import { toast } from "./toast";
+import * as LucideIcons from "lucide-react";
 
 import { shortcuts } from "@/constants";
 import { Vote } from "@/db/schema";
@@ -30,7 +31,33 @@ import { Button } from "./ui/button";
 import { useSidebar } from "./ui/sidebar";
 import Spinner from "./ui/spinner";
 import type { VisibilityType } from "./visibility-selector";
-
+type PromptItem = {
+  name: string;
+  description: string;
+  icon?: string;
+};
+const defaultSuggestions: PromptItem[] = [
+  {
+    name: "دریافت مشتری ها",
+    description: "لیستی از مشتری هاتان رو مشاهده می کنید",
+    icon: "User",
+  },
+  {
+    name: "دریافت فکتورها",
+    description: "تمام فاکتورهایتان را دریافت کنید",
+    icon: "FileText",
+  },
+  {
+    name: "تجزیه و تحلبل جامع",
+    description: "بررسی و پیشنهادات برای دیدی بهتر از فروشگاه",
+    icon: "LineChart",
+  },
+  {
+    name: "نمودار درآمدی",
+    description: "نموداری از فروش هاینان داشته باش",
+    icon: "ChartColumnBig",
+  },
+];
 export function Chat({
   id,
   initialMessages,
@@ -147,9 +174,53 @@ export function Chat({
     router.refresh();
   });
 
+  useEffect(() => {
+    function onProductsSelected(e: any) {
+      const ids: string[] = e?.detail?.ids ?? [];
+      if (!ids.length) return;
+      setInput((prev) => `${prev}\n\nمحصولات: ${ids.join(",")}`);
+    }
+    function onCustomersSelected(e: any) {
+      const ids: string[] = e?.detail?.ids ?? [];
+      if (!ids.length) return;
+      setInput((prev) => `${prev}\n\nمشتری‌ها: ${ids.join(",")}`);
+    }
+    function onInvoicesSelected(e: any) {
+      const ids: string[] = e?.detail?.ids ?? [];
+      if (!ids.length) return;
+      setInput((prev) => `${prev}\n\nفاکتورها: ${ids.join(",")}`);
+    }
+    window.addEventListener(
+      "diginext:products:selected",
+      onProductsSelected as any
+    );
+    window.addEventListener(
+      "diginext:customers:selected",
+      onCustomersSelected as any
+    );
+    window.addEventListener(
+      "diginext:invoices:selected",
+      onInvoicesSelected as any
+    );
+    return () => {
+      window.removeEventListener(
+        "diginext:products:selected",
+        onProductsSelected as any
+      );
+      window.removeEventListener(
+        "diginext:customers:selected",
+        onCustomersSelected as any
+      );
+      window.removeEventListener(
+        "diginext:invoices:selected",
+        onInvoicesSelected as any
+      );
+    };
+  }, [setInput]);
+
   return (
     <>
-      <div className="flex flex-col min-w-0 h-dvh bg-background">
+      <div dir="rtl" className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader user={user} setOpenShortcutDialog={setOpenShortcutDialog} />
 
         <Messages
@@ -164,7 +235,32 @@ export function Chat({
           isReadonly={isReadonly}
           setAttachments={setAttachments}
         />
+        {messages.length && (
+          <div className="flex gap-1 w-full absolute bottom-32 mx-auto left-0 right-0 max-w-[650px] overflow-x-auto">
+            {defaultSuggestions.map((item, index) => {
+              const iconName = item.icon ?? "CircleHelp";
+              const IconComponent =
+                ((
+                  LucideIcons as unknown as Record<
+                    string,
+                    React.ComponentType<any>
+                  >
+                )[iconName] as React.ComponentType<any> | undefined) ??
+                (LucideIcons as any).CircleHelp;
 
+              return (
+                <Button
+                  className="flex gap-1 items-center"
+                  onClick={() => onQuerySelect(item.name)}
+                >
+                  <IconComponent className="size-4" />
+
+                  <p>{item.name}</p>
+                </Button>
+              );
+            })}
+          </div>
+        )}
         {!isReadonly ? (
           <MultimodalInput
             input={input}
@@ -181,9 +277,11 @@ export function Chat({
           <Button
             onClick={async () => {
               setIsForkLoading(true);
+              const createdAtStr = (messages.at(-1)?.metadata as any)
+                ?.createdAt as string | undefined;
               await forkAction({
                 chatId: id,
-                createdAt: messages.at(-1)?.metadata.createdAt as Date,
+                createdAt: createdAtStr ? new Date(createdAtStr) : new Date(),
               });
               setIsForkLoading(false);
             }}

@@ -433,11 +433,11 @@ export function MultimodalInput({
       onDrop={handleDrop}
     >
       <div className="relative">
-        {status === "submitted" && (
+        {(status === "submitted" || status === "streaming") && (
           <motion.div
             className="pointer-events-none absolute inset-0 z-0"
             animate={{
-              opacity: status === "submitted" ? 1 : 0,
+              opacity: status === "submitted" || status === "streaming" ? 1 : 0,
             }}
             transition={{
               duration: 0.2,
@@ -483,7 +483,7 @@ export function MultimodalInput({
               onCompositionStart={handleCompositionStart}
               onCompositionEnd={handleCompositionEnd}
               className="text-normal  bg-transparent m-0 mt-2 w-full resize-none  px-3 ring-0 outline-none"
-              placeholder={placeholder ?? "Type your message here..."}
+              placeholder={placeholder ?? "دستورتان را وارد کنید"}
               value={input}
               onChange={handleInput}
               onKeyDown={(e) => {
@@ -531,7 +531,10 @@ export function MultimodalInput({
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-2 p-3">
+          <div
+            dir="ltr"
+            className="flex items-center justify-between gap-2 p-3"
+          >
             <input
               type="file"
               id="multimodal"
@@ -544,7 +547,7 @@ export function MultimodalInput({
               onChange={handleFileChange}
             />
             <div className="flex items-center gap-2">
-              <Tooltip content="Add File">
+              {/* <Tooltip content="Add File">
                 <Button
                   // disabled={isErrored}
                   type="button"
@@ -558,24 +561,24 @@ export function MultimodalInput({
                 >
                   <Paperclip className="size-5" />
                 </Button>
-              </Tooltip>
-              <ModelCombobox />
-              <SearchModeToggle />
+              </Tooltip> */}
+              {/* <ModelCombobox />
+              <SearchModeToggle /> */}
             </div>
             {!isRecording ? (
               <div className="flex  items-center gap-2">
-                <Tooltip content="Dictate">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-10 rounded-xl"
-                    onClick={startRecording}
-                    disabled={isProcessing}
-                  >
-                    <Mic className="size-5" />
-                  </Button>
-                </Tooltip>
+                {/* <Tooltip content="Dictate">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-10 rounded-xl"
+                      onClick={startRecording}
+                      disabled={isProcessing}
+                    >
+                      <Mic className="size-5" />
+                    </Button>
+                  </Tooltip> */}
                 <Button
                   type={status === "submitted" ? "button" : "submit"}
                   size={"icon"}

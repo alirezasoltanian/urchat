@@ -17,6 +17,9 @@ import { MessageReasoning } from "./message-reasoning";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import GenerateImage from "./tools/generate-image";
 import SearchSection from "./tools/search-section";
+import DiginextProductsPicker from "./tools/diginext-products-picker";
+import DiginextCustomersPicker from "./tools/diginext-customers-picker";
+import DiginextInvoicesView from "./tools/diginext-invoices-view";
 import { Vote } from "@/db/schema";
 import { GlowEffect } from "./core/glow-effect";
 import { Tooltip } from "./reuseable/re-tooltip";
@@ -26,6 +29,7 @@ import { BorderTrail } from "./core/border-trail";
 import { Image } from "lucide-react";
 import { TextShimmer } from "./core/text-shimmer";
 import ChatTextHighlighter from "./chat-text-highlighter";
+import { Skeleton } from "./ui/skeleton";
 
 export const PurePreviewMessage = ({
   chatId,
@@ -153,13 +157,13 @@ export const PurePreviewMessage = ({
                             chatId={chatId}
                             messageId={message.id}
                             text={message.parts
-                              ?.filter((part) => part.type === "text")
-                              .map((part) => part.text)
+                              ?.filter((part) => (part as any).type === "text")
+                              .map((part: any) => part.text)
                               .join("\n")
                               .trim()}
                             vote={vote}
                             isLoading={isLoading}
-                            createdAt={message.createdAt}
+                            createdAt={message.metadata?.createdAt as any}
                           />
                         </div>
                       )}
@@ -207,8 +211,11 @@ export const PurePreviewMessage = ({
                                 "  text-muted-foreground opacity-0 group-hover/message:opacity-100"
                               )}
                               text={
-                                message.parts?.find(
-                                  (part) => part?.type === "text" && !!part.text
+                                (
+                                  message.parts?.find(
+                                    (part: any) =>
+                                      part?.type === "text" && !!part.text
+                                  ) as any
                                 )?.text || ""
                               }
                             />
@@ -239,7 +246,10 @@ export const PurePreviewMessage = ({
 
               if (type === "tool-generateImage") {
                 console.log("tool-generateImage", type, part.state);
-                if (part.state !== "output-available") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
                   return (
                     <div className="relative size-52 flex-col items-center justify-center rounded-md bg-zinc-200 px-5 py-2 dark:bg-zinc-800">
                       <BorderTrail
@@ -287,7 +297,10 @@ export const PurePreviewMessage = ({
                 }
               }
               if (type === "tool-search") {
-                if (part.state !== "output-available") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
                   return (
                     <TextShimmer
                       duration={1.2}
@@ -302,6 +315,133 @@ export const PurePreviewMessage = ({
                     <SearchSection
                       tool={{ output: part?.output, input: part.input }}
                     />
+                  );
+                }
+              }
+              if (type === "tool-diginextProducts") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
+                  return (
+                    <TextShimmer duration={1.2} className="text-xl font-medium">
+                      در حال دریافت محصولات…
+                    </TextShimmer>
+                  );
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <DiginextProductsPicker
+                      tool={{ output: part?.output, input: part.input }}
+                    />
+                  );
+                }
+              }
+              if (type === "tool-diginextCustomers") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
+                  return (
+                    <TextShimmer duration={1.2} className="text-xl font-medium">
+                      در حال دریافت مشتری‌ها…
+                    </TextShimmer>
+                  );
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <DiginextCustomersPicker
+                      tool={{ output: part?.output, input: part.input }}
+                    />
+                  );
+                }
+              }
+              if (type === "tool-diginextCreateInvoices") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
+                  return (
+                    <TextShimmer duration={1.2} className="text-xl font-medium">
+                      در حال ایجاد فاکتورها…
+                    </TextShimmer>
+                  );
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <DiginextInvoicesView
+                      tool={{ output: part?.output, input: part.input }}
+                    />
+                  );
+                }
+              }
+              if (type === "tool-diginextListInvoices") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
+                  if (part.state === "input-available") {
+                    if (part.input.isChart) {
+                      return (
+                        <div className="w-full">
+                          <TextShimmer
+                            duration={1.2}
+                            className="text-xl font-medium"
+                          >
+                            درحال دریافت گزارشات درآمدی
+                          </TextShimmer>
+                          <Skeleton className="w-full h-[350px]" />
+                          <Skeleton className="w-full h-[350px] mt-3" />
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <TextShimmer
+                          duration={1.2}
+                          className="text-xl font-medium"
+                        >
+                          در حال ایجاد فاکتورها…
+                        </TextShimmer>
+                      );
+                    }
+                  } else {
+                    return (
+                      <TextShimmer
+                        duration={1.2}
+                        className="text-xl font-medium"
+                      >
+                        در حال ایجاد اطلاعات
+                      </TextShimmer>
+                    );
+                  }
+                }
+                if (part.state === "output-available") {
+                  return (
+                    <div className="w-full">
+                      <DiginextInvoicesView
+                        tool={{ output: part?.output, input: part.input }}
+                      />
+                    </div>
+                  );
+                }
+              }
+              if (type === "tool-diginextBusinessAnalysis") {
+                if (
+                  part.state === "input-available" ||
+                  part.state === "input-streaming"
+                ) {
+                  return (
+                    <TextShimmer duration={1.2} className="text-xl font-medium">
+                      در حال تحلیل جامع کسب‌وکار…
+                    </TextShimmer>
+                  );
+                }
+                if (part.state === "output-available") {
+                  const analysisText = (part?.output as any)?.analysis || "";
+                  return (
+                    <div className="w-full">
+                      <Markdown>{sanitizeText(analysisText)}</Markdown>
+                    </div>
                   );
                 }
               }

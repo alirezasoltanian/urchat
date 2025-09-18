@@ -5,6 +5,11 @@ import { ChatModel, DEFAULT_MODEL } from "@/lib/ai/models";
 import { systemPrompt } from "@/lib/ai/prompts";
 import { generateImageTool } from "@/lib/ai/tools/generate-image-tool";
 import { searchTool } from "@/lib/ai/tools/search-tool";
+import { diginextProductsTool } from "@/lib/ai/tools/diginext-products-tool";
+import { diginextCustomersTool } from "@/lib/ai/tools/diginext-customers-tool";
+import { diginextCreateInvoicesTool } from "@/lib/ai/tools/diginext-create-invoices-tool";
+import { diginextListInvoicesTool } from "@/lib/ai/tools/diginext-list-invoices-tool";
+import { diginextBusinessAnalysisTool } from "@/lib/ai/tools/diginext-business-analysis-tool";
 import { auth } from "@/lib/auth";
 import { ChatSDKError } from "@/lib/errors";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -128,7 +133,15 @@ export async function POST(request: Request) {
     const messagesFromDb = await getMessagesByChatId({ id });
     const uiMessages = [...convertToUIMessages(messagesFromDb), message];
 
-    const messages = convertToModelMessages(uiMessages);
+    // Strip any saved 'reasoning' parts from history to avoid Responses API errors
+    const sanitizedUiMessages = uiMessages.map((m) => ({
+      ...m,
+      parts: Array.isArray(m.parts)
+        ? m.parts.filter((p: any) => p && p.type !== "reasoning")
+        : m.parts,
+    }));
+
+    const messages = convertToModelMessages(sanitizedUiMessages);
 
     await saveMessages({
       messages: [
@@ -156,28 +169,28 @@ export async function POST(request: Request) {
       }
     }
 
-    const streamId = generateUUID();
-    await createStreamId({ streamId, chatId: id });
+    // const streamId = generateUUID();
+    // await createStreamId({ streamId, chatId: id });
 
-    const system = systemPrompt();
+    const system = systemPrompt() + `current date: ${new Date()}`;
 
-    const openrouterFormat = selectedModel.replace(":", "/");
-    console.log("44411", openrouterFormat);
+    // const openrouterFormat = selectedModel.replace(":", "/");
+    // console.log("44411", openrouterFormat);
 
     // const model = createOpenAICompatible({
     //   name: "openrouter",
     //   apiKey: process.env.OPENROUTER_API_KEY,
     //   baseURL: "https://openrouter.ai/api/v1",
     // }).chatModel(openrouterFormat);
-    const model = createOpenRouter({
-      apiKey: process.env.OPENROUTER_API_KEY,
-    }).chat(openrouterFormat);
-    console.log("44422", model);
+    // const model = createOpenRouter({
+    //   apiKey: process.env.OPENROUTER_API_KEY,
+    // }).chat(openrouterFormat);
+    // console.log("44422", model);
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model: openai("gpt-4-turbo"),
+          model: openai("o3-mini"),
           // model,
           system,
           messages,
@@ -196,12 +209,32 @@ export async function POST(request: Request) {
             });
           },
           experimental_activeTools: searchMode
-            ? ["search", "generateImage"]
-            : ["generateImage"],
+            ? [
+                "search",
+                "generateImage",
+                "diginextProducts",
+                "diginextCustomers",
+                "diginextCreateInvoices",
+                "diginextListInvoices",
+                "diginextBusinessAnalysis",
+              ]
+            : [
+                "generateImage",
+                "diginextProducts",
+                "diginextCustomers",
+                "diginextCreateInvoices",
+                "diginextListInvoices",
+                "diginextBusinessAnalysis",
+              ],
 
           tools: {
             search: searchTool,
             generateImage: generateImageTool(id),
+            diginextProducts: diginextProductsTool,
+            diginextCustomers: diginextCustomersTool,
+            diginextCreateInvoices: diginextCreateInvoicesTool,
+            diginextListInvoices: diginextListInvoicesTool,
+            diginextBusinessAnalysis: diginextBusinessAnalysisTool,
           },
         });
 
@@ -218,6 +251,8 @@ export async function POST(request: Request) {
       onFinish: async ({ messages }) => {
         if (session.user?.id) {
           try {
+            console.log("messagesmessages", messages);
+
             await saveMessages({
               messages: messages.map((message) => ({
                 id: message.id,

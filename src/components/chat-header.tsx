@@ -29,7 +29,7 @@ export function ChatHeader({
   const router = useRouter();
 
   return (
-    <header className="flex sticky top-0 bg-background py-1.5 items-center justify-end px-2 md:px-2 gap-2">
+    <header className="flex sticky top-0 bg-background py-1.5 items-center justify-start px-2 md:px-2 gap-2">
       {/* {!isReadonly && (
         <ModelSelector
           session={session}

@@ -37,11 +37,17 @@
   --color-accent-blue: var(--accent-blue);
   --color-accent-blue-foreground: var(--accent-blue-foreground);
   --color-accent-blue-border: var(--accent-blue-border)
-
+  
+  /* fonts  */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
-
+--font-base: var(--font-base), sans-serif;
+--font-medium: var(--font-medium), sans-serif;
+--font-heading: var(--font-heading), sans-serif;
+--font-semiHeading: var(--font-semiHeading), sans-serif;
+--font-sans: var(--geist-sans), sans-serif;
+--font-mono: var(--geist-mono), sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

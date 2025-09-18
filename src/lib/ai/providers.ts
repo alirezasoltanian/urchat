@@ -13,8 +13,8 @@ export const myProvider = customProvider({
       model: xai("grok-3-mini-beta"),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     }),
-    "title-model": openai("gpt-3.5-turbo"),
-    openai: openai("gpt-4.1"),
+    "title-model": openai("gpt-5-nano"),
+    openai: openai("gpt-5-nano"),
     "artifact-model": xai("grok-2-1212"),
   },
   imageModels: {
