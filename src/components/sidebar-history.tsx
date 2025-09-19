@@ -112,7 +112,9 @@ export function SidebarHistory({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [shareVisibility, setShareVisibility] = useState("");
+  const [shareVisibility, setShareVisibility] = useState<
+    "public" | "private" | null
+  >(null);
 
   const hasReachedEnd = paginatedChatHistories
     ? paginatedChatHistories.some((page) => page.hasMore === false)
@@ -128,7 +130,7 @@ export function SidebarHistory({
     });
     setIsPending(true);
     toast.promise(deletePromise, {
-      loading: "Deleting chat...",
+      loading: "در حال حذف گفتگو...",
       success: () => {
         mutate((chatHistories) => {
           if (chatHistories) {
@@ -139,9 +141,9 @@ export function SidebarHistory({
           }
         });
 
-        return "Chat deleted successfully";
+        return "گفتگو با موفقیت حذف شد";
       },
-      error: "Failed to delete chat",
+      error: "حذف گفتگو ناموفق بود",
     });
     setIsPending(false);
     setShowDeleteDialog(false);
@@ -156,7 +158,7 @@ export function SidebarHistory({
       <SidebarGroup>
         <SidebarGroupContent>
           <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
-            Login to save and revisit previous chats!
+            برای ذخیره و مشاهده دوباره گفتگوهای قبلی وارد حساب کاربری شوید!
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -197,7 +199,7 @@ export function SidebarHistory({
       <SidebarGroup>
         <SidebarGroupContent>
           <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
-            Your conversations will appear here once you start chatting!
+            پس از شروع گفتگو، مکالمات شما اینجا نمایش داده می‌شوند!
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -236,7 +238,9 @@ export function SidebarHistory({
                             onSharing={(chatId, visibility) => {
                               setShareId(chatId);
                               setShareOpen(true);
-                              setShareVisibility(visibility);
+                              setShareVisibility(
+                                visibility as "public" | "private"
+                              );
                             }}
                           />
                         ))}
@@ -260,7 +264,9 @@ export function SidebarHistory({
                             onSharing={(chatId, visibility) => {
                               setShareId(chatId);
                               setShareOpen(true);
-                              setShareVisibility(visibility);
+                              setShareVisibility(
+                                visibility as "public" | "private"
+                              );
                             }}
                           />
                         ))}
@@ -270,7 +276,7 @@ export function SidebarHistory({
                     {groupedChats.lastWeek.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          هفته گذسته
+                          هفته گذشته
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
                           <ChatItem
@@ -284,7 +290,9 @@ export function SidebarHistory({
                             onSharing={(chatId, visibility) => {
                               setShareId(chatId);
                               setShareOpen(true);
-                              setShareVisibility(visibility);
+                              setShareVisibility(
+                                visibility as "public" | "private"
+                              );
                             }}
                           />
                         ))}
@@ -308,7 +316,9 @@ export function SidebarHistory({
                             onSharing={(chatId, visibility) => {
                               setShareId(chatId);
                               setShareOpen(true);
-                              setShareVisibility(visibility);
+                              setShareVisibility(
+                                visibility as "public" | "private"
+                              );
                             }}
                           />
                         ))}
@@ -332,7 +342,9 @@ export function SidebarHistory({
                             onSharing={(chatId, visibility) => {
                               setShareId(chatId);
                               setShareOpen(true);
-                              setShareVisibility(visibility);
+                              setShareVisibility(
+                                visibility as "public" | "private"
+                              );
                             }}
                           />
                         ))}
@@ -361,7 +373,7 @@ export function SidebarHistory({
               <div className="animate-spin">
                 <LoaderIcon />
               </div>
-              <div>Loading Chats...</div>
+              <div>در حال بارگذاری گفتگوها...</div>
             </div>
           )}
         </SidebarGroupContent>
@@ -369,19 +381,19 @@ export function SidebarHistory({
       {shareId && shareVisibility && (
         <ChatShare
           chatId={shareId}
-          visibility={shareVisibility}
+          visibility={shareVisibility!}
           externalOpen={shareOpen}
           setExternalOpen={setShareOpen}
         />
       )}
       <DeleteDialog
-        deleteTitle="Delete chat?"
+        deleteTitle="حذف گفتگو؟"
         isPending={isPending}
         deleteAction={handleDelete}
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         deleteDescription={
-          "This action cannot be undone. This will permanently delete your chat and remove it from our servers."
+          "این عملیات قابل بازگشت نیست. این کار گفتگو را به‌طور دائمی حذف کرده و از سرورهای ما پاک می‌کند."
         }
       />
       <CommandDialogSearch

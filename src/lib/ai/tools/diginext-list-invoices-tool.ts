@@ -31,6 +31,11 @@ export const diginextListInvoicesTool = tool({
       )
       .optional()
       .describe("ISO datetime to filter products created on/before this date"),
+
+    isChart: z
+      .boolean()
+      .default(false)
+      .describe("Set true if a chart/report is requested"),
   }),
   execute: async ({ customerIds, statuses, limit, startDate, endDate }) => {
     // base invoices

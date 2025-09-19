@@ -5,7 +5,7 @@ import { openai } from "@ai-sdk/openai";
 
 export const diginextBusinessAnalysisTool = tool({
   description:
-    "تحلیل جامع بیزینسی از داده‌های فروش، فاکتورها، مشتریان و محصولات Diginext. خروجی را به فارسی و عملیاتی ارائه بده.",
+    "تحلیل کوتاه و سریع بیزینسی از داده‌های فروش Diginext. خروجی مختصر و عملیاتی ارائه بده.",
   inputSchema: z.object({
     focus: z
       .string()
@@ -19,45 +19,35 @@ export const diginextBusinessAnalysisTool = tool({
     const snapshot = await getDiginextSnapshot();
 
     const systemFa =
-      "تو یک مشاور ارشد رشد و داده‌محور برای فروشگاه‌های کالامحور هستی. با نگاهی عملیاتی، واضح و بدون حاشیه، بینش‌های قابل اقدام بده. از اغراق پرهیز کن و مبتنی بر داده صحبت کن.";
+      "مشاور داده‌محور فروشگاه. تحلیل کوتاه و عملیاتی ارائه بده.";
     const systemEn =
-      "You are a senior, data-driven growth consultant for retail/ecommerce. Provide actionable, pragmatic insights grounded in the provided data. Avoid fluff.";
+      "Data-driven retail consultant. Provide concise, actionable analysis.";
 
     const promptFa = `
-این تصویر لحظه‌ای از فروشگاه است (store, products, customers, invoices). با توجه به آن:
+تحلیل کوتاه فروشگاه (حداکثر ۵ نکته کلیدی):
+- فرصت‌های اصلی و اقدامات پیشنهادی
+- مشتریان/محصولات کلیدی
+- ریسک‌ها و بهبودها
+${focus ? `تمرکز: ${focus}` : ""}
 
-- یک تحلیل مدیریتی کوتاه اما عمیق ارائه بده.
-- به فرصت‌های فصلی، ترکیب سبد خرید (Cross-sell/Bundle)، مشتریان کلیدی (80/20)، محصولات پرفروش اما کم‌حاشیه سود، چرخه وصول و وضعیت نقدینگی اشاره کن.
-- برای هر مورد، «اقدام پیشنهادی» مشخص و قابل اجرا بده (همراه با بازه زمانی/اولویت).
-- اگر داده ناکافی است، شفاف بگو چه داده‌ای لازم است.
-${focus ? `- تمرکز ویژه: ${focus}` : ""}
-
-نمونه‌ی لحن و خروجی مورد انتظار:
-• «تابستان فصل طلایی فروش کولرهای شماست؛ اگر امسال تبلیغات را دو ماه زودتر شروع کنید، فروشتان ۳۰٪ بیشتر می‌شود.»
-• «این محصول با وجود فروش بالا، سود کمی دارد؛ مشتری جذب می‌کند اما سود اصلی را نمی‌آورد.»
-• «۸۰٪ سود شما از ۲۰٪ مشتریان خاص می‌آید؛ مراقب ریزش‌شان باشید.»
-• «چرا محصول X را با Y بسته‌بندی نمی‌کنید؟ خریداران X اغلب Y هم می‌خواهند.»
-
-داده:
-${JSON.stringify(snapshot, null, 2)}
+داده: ${JSON.stringify(snapshot, null, 2)}
 `;
 
     const promptEn = `
-Here is a shop snapshot (store, products, customers, invoices).
-Provide concise, deeply insightful, and actionable business analysis covering:
-- Seasonal opportunities, cross-sell/bundling, 80/20 customer concentration, high-volume low-margin items, payment/collection cycle.
-- For each point include a concrete recommended action with priority/timeframe.
-- If data is insufficient, state what else is needed.
-${focus ? `- Extra focus: ${focus}` : ""}
+Brief shop analysis (max 5 key points):
+- Main opportunities & actions
+- Key customers/products  
+- Risks & improvements
+${focus ? `Focus: ${focus}` : ""}
 
-Data:
-${JSON.stringify(snapshot, null, 2)}
+Data: ${JSON.stringify(snapshot, null, 2)}
 `;
 
     const { text } = await generateText({
-      model: openai("gpt-5-mini"),
+      model: openai("gpt-4o-mini"),
       system: language === "fa" ? systemFa : systemEn,
       prompt: language === "fa" ? promptFa : promptEn,
+      temperature: 0.3,
     });
 
     return { analysis: text };
