@@ -240,9 +240,14 @@ export const suggestions: PromptItem[] = [
     icon: "PackageSearch",
   },
   {
-    name: "هفتگی نمایش فاکتورها",
+    name: "نمایش فاکتورها هفتگی",
     description: "جستجو و دریافت فاکتورهای فروش.",
     icon: "FileStack",
+  },
+  {
+    name: "نمایش محصولات هفتگی",
+    description: "جستجو و دریافت محصولات فروشگاه.",
+    icon: "PackageSearch",
   },
 ];
 

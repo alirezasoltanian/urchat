@@ -202,7 +202,7 @@ export const diginextCreateInvoicesTool = tool({
           created.push({
             id: inv.id,
             status: inv.status,
-            invoiceNumber: inv.invoiceNumber,
+            invoiceNumber: inv.id,
             customerId: inv.customerId,
             customerEmail: idToCustomerEmail.get(inv.customerId) ?? null,
             totalCents: total,
@@ -237,7 +237,7 @@ export const diginextCreateInvoicesTool = tool({
         created.push({
           id: inv.id,
           status: inv.status,
-          invoiceNumber: inv.invoiceNumber,
+          invoiceNumber: inv.id,
           customerId: c.id,
           customerEmail: idToCustomerEmail.get(c.id) ?? null,
           totalCents: total,

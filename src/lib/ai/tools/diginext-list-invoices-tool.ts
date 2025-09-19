@@ -6,15 +6,12 @@ import { eq, inArray, sql, gte, lte } from "drizzle-orm";
 
 export const diginextListInvoicesTool = tool({
   description:
-    "List invoices with customer email and product count. If the user mentions a report or chart, set isChart=true to hint the UI to show charts.",
+    "List invoices with customer email and product count. If the user mentions a report or chart, set isChart=true to hint the UI to show charts.if dont talk about time dont need endDate and startDate so be undefined",
   inputSchema: z.object({
     customerIds: z.array(z.string()).optional(),
     statuses: z.array(z.enum(["draft", "issued", "paid", "void"])).optional(),
     limit: z.number().min(1).max(200).default(50),
-    startDate: z.coerce
-      .date()
-      .optional()
-      .describe("Date to filter invoices issued on/after this date"),
+
     startDate: z
       .string()
       .refine(
@@ -39,6 +36,8 @@ export const diginextListInvoicesTool = tool({
   }),
   execute: async ({ customerIds, statuses, limit, startDate, endDate }) => {
     // base invoices
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
     const invs = await db.query.invoice.findMany({
       where: (tbl, { and }) =>
         and(
@@ -46,8 +45,8 @@ export const diginextListInvoicesTool = tool({
             ? inArray(tbl.customerId, customerIds)
             : undefined,
           statuses?.length ? inArray(tbl.status, statuses as any) : undefined,
-          startDate ? gte(tbl.issuedAt, startDate) : undefined,
-          endDate ? lte(tbl.issuedAt, endDate) : undefined
+          start ? gte(tbl.issuedAt, start) : undefined,
+          end ? lte(tbl.issuedAt, end) : undefined
         ),
       orderBy: (tbl, { desc }) => [desc(tbl.issuedAt)],
       limit,
@@ -80,7 +79,7 @@ export const diginextListInvoicesTool = tool({
     const created = invs.map((inv) => ({
       id: inv.id,
       status: inv.status,
-      invoiceNumber: inv.invoiceNumber,
+      invoiceNumber: inv.id,
       customerId: inv.customerId,
       customerEmail: idToEmail.get(inv.customerId) ?? null,
       totalCents: inv.totalCents,

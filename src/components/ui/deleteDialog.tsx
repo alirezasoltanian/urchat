@@ -51,14 +51,14 @@ function DeleteDialog({
         <div className="mt-4 flex w-full gap-3 *:w-[50%]">
           <Button
             disabled={isPending}
-            variant="ghost"
+            variant="outline"
             className=""
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            انصراف
           </Button>
           <Button disabled={isPending} onClick={deleteAction}>
-            Delete
+            حذف
           </Button>
         </div>
       </div>
