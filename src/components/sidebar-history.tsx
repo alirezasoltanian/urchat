@@ -167,7 +167,7 @@ export function SidebarHistory({
     return (
       <SidebarGroup>
         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-          Today
+          امروز
         </div>
         <SidebarGroupContent>
           <div className="flex flex-col">
@@ -222,7 +222,7 @@ export function SidebarHistory({
                     {groupedChats.today.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Today
+                          امروز
                         </div>
                         {groupedChats.today.map((chat) => (
                           <ChatItem
@@ -246,7 +246,7 @@ export function SidebarHistory({
                     {groupedChats.yesterday.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Yesterday
+                          دیروز
                         </div>
                         {groupedChats.yesterday.map((chat) => (
                           <ChatItem
@@ -270,7 +270,7 @@ export function SidebarHistory({
                     {groupedChats.lastWeek.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Last 7 days
+                          هفته گذسته
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
                           <ChatItem
@@ -294,7 +294,7 @@ export function SidebarHistory({
                     {groupedChats.lastMonth.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Last 30 days
+                          ماه گذشته
                         </div>
                         {groupedChats.lastMonth.map((chat) => (
                           <ChatItem
@@ -318,7 +318,7 @@ export function SidebarHistory({
                     {groupedChats.older.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                          Older than last month
+                          بیشتر از یک ماه
                         </div>
                         {groupedChats.older.map((chat) => (
                           <ChatItem

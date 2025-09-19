@@ -62,7 +62,7 @@ export function SidebarToggle({
             }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <Tooltip>
+            {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   onClick={() => {
@@ -76,7 +76,7 @@ export function SidebarToggle({
                 </Button>
               </TooltipTrigger>
               <TooltipContent align="end">Search Chat</TooltipContent>
-            </Tooltip>
+            </Tooltip> */}
           </motion.div>
 
           <motion.div

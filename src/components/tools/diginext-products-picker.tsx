@@ -35,7 +35,9 @@ export default function DiginextProductsPicker({
         <div className="overflow-x-auto max-h-[80vh]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left border-b">
+              <tr className="text-start border-b">
+                <th className="p-2">شماره</th>
+
                 <th className="p-2">انتخاب</th>
                 <th className="p-2">نام</th>
                 <th className="p-2">SKU</th>
@@ -43,8 +45,10 @@ export default function DiginextProductsPicker({
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {rows.map((r, index) => (
                 <tr key={r.id} className="border-b hover:bg-accent/40">
+                  <td className="p-2">{index + 1}</td>
+
                   <td className="p-2">
                     <input
                       type="checkbox"

@@ -57,7 +57,7 @@ export function PureMessageActions({
       setIsReading(true);
 
       if (!audio) {
-        throw new Error("Failed to generate audio");
+        throw new Error("تولید صدا ناموفق بود");
       }
       if (audio.error) {
         toast.error(audio.error);
@@ -82,7 +82,7 @@ export function PureMessageActions({
         URL.revokeObjectURL(audioUrl);
       };
     } catch (error) {
-      toast.error("Failed to generate speech");
+      toast.error("تولید گفتار ناموفق بود");
       setIsAudioLoading(false);
       setIsReading(false);
     }
@@ -99,7 +99,7 @@ export function PureMessageActions({
   return (
     <div className="flex flex-row gap-2 p-1">
       {text && (
-        <Tooltip content="Copy">
+        <Tooltip content="کپی">
           <CopyButton
             className={cn(buttonVariants({ variant: "ghost", size: "iconsm" }))}
             text={text as string}
@@ -107,7 +107,7 @@ export function PureMessageActions({
         </Tooltip>
       )}
       {text && (
-        <Tooltip content="Read aloud">
+        <Tooltip content="خواندن با صدا">
           <Button
             onClick={() => {
               if (isReading) {
@@ -130,7 +130,7 @@ export function PureMessageActions({
           </Button>
         </Tooltip>
       )}
-      <Tooltip content="Fork it">
+      <Tooltip content="انشعاب">
         <Button
           onClick={async () => {
             setIsForkLoading(true);
@@ -145,7 +145,7 @@ export function PureMessageActions({
         </Button>
       </Tooltip>
 
-      <Tooltip content="Positive feedback">
+      <Tooltip content="بازخورد مثبت">
         <Button
           data-testid="message-upvote"
           className="text-muted-foreground pointer-events-auto!"
@@ -163,7 +163,7 @@ export function PureMessageActions({
             });
 
             toast.promise(upvote, {
-              loading: "Confirming positive feedback...",
+              loading: "در حال ثبت بازخورد مثبت...",
               success: () => {
                 mutate<Array<Vote>>(
                   `/api/vote?chatId=${chatId}`,
@@ -186,9 +186,9 @@ export function PureMessageActions({
                   { revalidate: false }
                 );
 
-                return "Confirmed";
+                return "ثبت شد";
               },
-              error: "Failed to upvote response.",
+              error: "ثبت رأی مثبت ناموفق بود.",
             });
           }}
         >
@@ -201,7 +201,7 @@ export function PureMessageActions({
         </Button>
       </Tooltip>
 
-      <Tooltip content="Negative feedback">
+      <Tooltip content="بازخورد منفی">
         <Button
           data-testid="message-downvote"
           className="text-muted-foreground pointer-events-auto!"
@@ -219,7 +219,7 @@ export function PureMessageActions({
             });
 
             toast.promise(downvote, {
-              loading: "Confirming negative feedback...",
+              loading: "در حال ثبت بازخورد منفی...",
               success: () => {
                 mutate<Array<Vote>>(
                   `/api/vote?chatId=${chatId}`,
@@ -242,9 +242,9 @@ export function PureMessageActions({
                   { revalidate: false }
                 );
 
-                return "Confirmed.";
+                return "ثبت شد.";
               },
-              error: "Failed to downvote response.",
+              error: "ثبت رأی منفی ناموفق بود.",
             });
           }}
         >

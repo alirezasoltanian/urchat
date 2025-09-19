@@ -74,11 +74,11 @@ const PureChatItem = ({
           >
             <EditableArea className="w-full">
               <EditablePreview className="border-none p-0">
-                <p className="truncate font-medium select-none">
+                <p className="truncate font-medium select-none" dir="auto">
                   {truncateTitle}
                 </p>
               </EditablePreview>
-              <EditableInput className="w-[90%]" />
+              <EditableInput className="w-[90%]" dir="auto" />
             </EditableArea>
           </Editable>
         ) : (
@@ -89,7 +89,9 @@ const PureChatItem = ({
             }}
             href={`/chat/${chat.id}`}
           >
-            <p className="truncate  select-none">{truncateTitle}</p>
+            <p className="truncate  select-none" dir="auto">
+              {truncateTitle}
+            </p>
           </Link>
         )}
       </SidebarMenuButton>
@@ -105,23 +107,23 @@ const PureChatItem = ({
               showOnHover={!isActive}
             >
               <MoreHorizontalIcon />
-              <span className="sr-only">More</span>
+              <span className="sr-only">بیشتر</span>
             </SidebarMenuAction>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="rounded-lg" side="bottom" align="end">
             <DropdownMenuItem
-              className="flex w-full text-start cursor-pointer"
+              className="flex items-center w-full text-start cursor-pointer"
               onClick={() => setIsEditing(true)}
             >
               <Edit className=" size-4" />
-              <p>Rename</p>
+              <p>تغییر نام</p>
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer "
+              className="cursor-pointer flex items-center"
               onSelect={() => onSharing(chat.id, chat.visibility)}
             >
               <Share className=" size-4" />
-              <span>Share</span>
+              <span>اشتراک‌گذاری</span>
             </DropdownMenuItem>
             {chat.forkId && (
               <DropdownMenuItem className="cursor-pointer ">
@@ -130,16 +132,16 @@ const PureChatItem = ({
                   href={`/chat/${chat.forkId}`}
                 >
                   <GitFork className="me-2 size-4" />
-                  <span>Source</span>
+                  <span>منبع</span>
                 </Link>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
-              className="cursor-pointer text-destructive focus:text-destructive focus:dark:text-red-500 focus:bg-destructive/30  dark:text-red-500"
+              className="cursor-pointer flex items-center text-destructive focus:text-destructive focus:dark:text-red-500 focus:bg-destructive/30  dark:text-red-500"
               onSelect={() => onDelete(chat.id)}
             >
               <TrashIcon className="me-2 size-4" />
-              <span>Delete</span>
+              <span>حذف</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

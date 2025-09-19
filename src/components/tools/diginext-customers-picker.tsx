@@ -30,11 +30,11 @@ export default function DiginextCustomersPicker({
         </Button>
       )}
     >
-      <div className="overflow-x-auto">
+      <div className="overflow-auto">
         <div className="overflow-auto max-h-[80vh]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left border-b">
+              <tr className="text-start border-b">
                 <th className="p-2">انتخاب</th>
                 <th className="p-2">نام</th>
                 <th className="p-2">ایمیل</th>

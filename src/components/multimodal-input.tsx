@@ -37,6 +37,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { PreviewAttachment } from "./preview-attachment";
 import { id } from "zod/v4/locales";
 import { Attachment, ChatMessage } from "@/types";
+import { suggestions } from "@/constants";
+import * as LucideIcons from "lucide-react";
 
 function isFileInArray(file: File, existingFiles: File[]) {
   return existingFiles.some(
@@ -57,6 +59,7 @@ interface MultimodalInputProps {
   attachments: Attachment[];
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
+  hasMessages?: boolean;
 }
 
 export function MultimodalInput({
@@ -70,11 +73,12 @@ export function MultimodalInput({
   setAttachments,
   setMessages,
   sendMessage,
+  hasMessages,
 }: MultimodalInputProps) {
-  const textareaRef = useRef(true);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isComposing, setIsComposing] = useState(false);
   const [enterDisabled, setEnterDisabled] = useState(false);
-  const [files, setFiles] = useState<FileList[] | undefined>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const recordTimeLimit = 60; // second
   const handleCompositionStart = () => setIsComposing(true);
   const handleCompositionEnd = () => {
@@ -95,11 +99,7 @@ export function MultimodalInput({
       );
 
       if (validFiles.length === selectedFiles.length) {
-        const dataTransfer = new DataTransfer();
-        validFiles.forEach((file) => {
-          dataTransfer.items.add(file);
-        });
-        setFiles([dataTransfer.files]);
+        setFiles(validFiles);
         const fileDataImages = new FormData();
         if (validFiles && validFiles.length) {
           [...validFiles].forEach((image) => {
@@ -192,10 +192,11 @@ export function MultimodalInput({
 
     if (droppedFiles.length > 0) {
       setFiles((prev) => {
+        const existing = prev ?? [];
         const uniqueFiles = droppedFiles.filter(
-          (file) => !isFileInArray(file, prev)
+          (file) => !isFileInArray(file, existing)
         );
-        return [...prev, ...uniqueFiles];
+        return [...existing, ...uniqueFiles];
       });
     }
   }
@@ -204,7 +205,7 @@ export function MultimodalInput({
     if (!files || files.length === 0) return null;
     return (
       <div className="flex flex-wrap gap-2 p-2">
-        {Array.from(files[0]).map((file) => {
+        {files.map((file) => {
           return (
             <div className="relative size-fit" key={file.name}>
               {/* <div className="absolute text-red-500 inset-0 m-auto size-5">
@@ -249,7 +250,7 @@ export function MultimodalInput({
   const [isProcessing, setIsProcessing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   useHotkeys("ctrl+shift+l", () => {
-    textareaRef.current.focus();
+    if (textareaRef.current) textareaRef.current.focus();
   });
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -375,6 +376,9 @@ export function MultimodalInput({
   );
   const submitForm = useCallback(() => {
     window.history.replaceState({}, "", `/chat/${chatId}`);
+    if (isLoading) {
+      return;
+    }
     console.log("firstfirstfirst192", {
       role: "user",
       parts: [
@@ -412,142 +416,176 @@ export function MultimodalInput({
   const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
+  const isLoading = status === "submitted" || status === "streaming";
   return (
     // <div
     //   className={cn(
     //     "bg-background container w-full px-0 absolute bottom-0 left-0 right-0 mx-auto"
     //   )}
     // >
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (status !== "submitted") {
-          submitForm();
-        }
-      }}
-      onKeyDown={onEnter}
-      className=" mx-auto mt-auto absolute bottom-0 left-0 right-0 duration-500   flex w-full max-w-[650px] flex-col px-0 pt-2 "
-      onDragEnter={handleDrag}
-      onDragLeave={handleDrag}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
-    >
-      <div className="relative">
-        {(status === "submitted" || status === "streaming") && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-0"
-            animate={{
-              opacity: status === "submitted" || status === "streaming" ? 1 : 0,
-            }}
-            transition={{
-              duration: 0.2,
-              ease: "easeOut",
-            }}
-          >
-            <GlowEffect
-              colors={["#0894FF", "#C959DD", "#FF2E54", "#FF9004"]}
-              mode="colorShift"
-              blur="medium"
-              duration={4}
-            />
-          </motion.div>
-        )}
-        <div
-          className={`bg-background/90 relative z-10 rounded-t-2xl border p-1 shadow-md ${
-            dragActive
-              ? "before:border-primary before:absolute before:inset-0 before:rounded-2xl before:border-2 before:border-dashed"
-              : ""
-          }`}
-        >
-          {files && files.length > 0 && filePreview}
-          <div className="flex flex-wrap gap-2 p-2">
-            {attachments?.map((item) => (
-              <div className="relative size-fit" key={item.url}>
-                <span
-                  onClick={() => handleFileRemove(item.url)}
-                  className="bg-muted absolute top-[-8] right-[-8] rounded-full p-1"
-                >
-                  <X className="h-3 w-3 cursor-pointer" />
-                </span>
-                <PreviewAttachment isInChat={false} attachment={item} />
-              </div>
-            ))}
-          </div>
-          {/* <div className="flex items-center gap-1 px-3 py-2">{children}</div> */}
-          {!isRecording ? (
-            <Textarea
-              ref={textareaRef}
-              autoFocus={true}
-              minRows={1}
-              maxRows={3}
-              onCompositionStart={handleCompositionStart}
-              onCompositionEnd={handleCompositionEnd}
-              className="text-normal  bg-transparent m-0 mt-2 w-full resize-none  px-3 ring-0 outline-none"
-              placeholder={placeholder ?? "دستورتان را وارد کنید"}
-              value={input}
-              onChange={handleInput}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  !e.shiftKey &&
-                  !isComposing &&
-                  !enterDisabled
-                ) {
-                  if (input.trim().length === 0) {
-                    e.preventDefault();
-                    return;
-                  }
-                  e.preventDefault();
-                  const textarea = e.target as HTMLTextAreaElement;
-                  textarea.form?.requestSubmit();
-                }
-              }}
-              onPaste={handlePaste}
-            />
-          ) : (
-            <div className="flex items-center justify-center">
-              <div
-                className={cn(
-                  recordingTime === recordTimeLimit
-                    ? "text-destructive"
-                    : "text-muted-foreground",
-                  "flex w-[52px] items-center me-1 gap-1 justify-between text-sm"
-                )}
-              >
-                <span>
-                  {Math.floor(recordTimeLimit / 60)}:
-                  {(recordTimeLimit % 60).toString().padStart(2, "0")}
-                </span>
-                <span>/</span>
-                <span>
-                  {Math.floor(recordingTime / 60)}:
-                  {(recordingTime % 60).toString().padStart(2, "0")}
-                </span>
-              </div>
-              <VoiceVisualizer
-                mediaRecorder={mediaRecorder}
-                isRecording={isRecording}
-              />
-            </div>
-          )}
+    <>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (status !== "submitted") {
+            submitForm();
+          }
+        }}
+        onKeyDown={onEnter}
+        className=" mx-auto mt-auto absolute bottom-0 left-0 right-0 duration-500   flex w-full max-w-[650px] flex-col px-0 pt-2 "
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        {hasMessages && (
+          <div className="flex gap-1 w-full  mx-auto  max-w-[650px] overflow-x-auto">
+            {suggestions.map((item, index) => {
+              const iconName = item.icon ?? "CircleHelp";
+              const IconComponent =
+                ((
+                  LucideIcons as unknown as Record<
+                    string,
+                    React.ComponentType<any>
+                  >
+                )[iconName] as React.ComponentType<any> | undefined) ??
+                (LucideIcons as any).CircleHelp;
 
+              return (
+                <Button
+                  className="flex gap-1 items-center"
+                  onClick={() =>
+                    sendMessage({
+                      role: "user",
+                      parts: [{ text: item.name ?? input, type: "text" }],
+                    })
+                  }
+                  disabled={isLoading}
+                  type="button"
+                >
+                  <IconComponent className="size-4" />
+                  <p>{item.name}</p>
+                </Button>
+              );
+            })}
+          </div>
+        )}
+        <div className="relative">
+          {isLoading && (
+            <motion.div
+              className="pointer-events-none absolute inset-0 z-0"
+              animate={{
+                opacity: isLoading ? 1 : 0,
+              }}
+              transition={{
+                duration: 0.2,
+                ease: "easeOut",
+              }}
+            >
+              <GlowEffect
+                colors={["#0894FF", "#C959DD", "#FF2E54", "#FF9004"]}
+                mode="colorShift"
+                blur="medium"
+                duration={4}
+              />
+            </motion.div>
+          )}
           <div
-            dir="ltr"
-            className="flex items-center justify-between gap-2 p-3"
+            className={`bg-background/90 relative z-10 rounded-t-2xl border p-1 shadow-md ${
+              dragActive
+                ? "before:border-primary before:absolute before:inset-0 before:rounded-2xl before:border-2 before:border-dashed"
+                : ""
+            }`}
           >
-            <input
-              type="file"
-              id="multimodal"
-              name="multimodal"
-              accept={attachmentDefaultUploadFile.acceptFileTypes.types.join(
-                ","
-              )}
-              multiple={true}
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <div className="flex items-center gap-2">
-              {/* <Tooltip content="Add File">
+            {files && files.length > 0 && filePreview}
+            <div className="flex flex-wrap gap-2 p-2">
+              {attachments?.map((item) => (
+                <div className="relative size-fit" key={item.url}>
+                  <span
+                    onClick={() => handleFileRemove(item.url)}
+                    className="bg-muted absolute top-[-8] right-[-8] rounded-full p-1"
+                  >
+                    <X className="h-3 w-3 cursor-pointer" />
+                  </span>
+                  <PreviewAttachment isInChat={false} attachment={item} />
+                </div>
+              ))}
+            </div>
+            {/* <div className="flex items-center gap-1 px-3 py-2">{children}</div> */}
+            {!isRecording ? (
+              <Textarea
+                ref={textareaRef}
+                autoFocus={true}
+                minRows={1}
+                maxRows={3}
+                onCompositionStart={handleCompositionStart}
+                onCompositionEnd={handleCompositionEnd}
+                className="text-normal  bg-transparent m-0 mt-2 w-full resize-none  px-3 ring-0 outline-none"
+                placeholder={placeholder ?? "دستورتان را وارد کنید"}
+                value={input}
+                onChange={handleInput}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey &&
+                    !isComposing &&
+                    !enterDisabled
+                  ) {
+                    if (input.trim().length === 0) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.preventDefault();
+                    const textarea = e.target as HTMLTextAreaElement;
+                    textarea.form?.requestSubmit();
+                  }
+                }}
+                onPaste={handlePaste}
+              />
+            ) : (
+              <div className="flex items-center justify-center">
+                <div
+                  className={cn(
+                    recordingTime === recordTimeLimit
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                    "flex w-[52px] items-center me-1 gap-1 justify-between text-sm"
+                  )}
+                >
+                  <span>
+                    {Math.floor(recordTimeLimit / 60)}:
+                    {(recordTimeLimit % 60).toString().padStart(2, "0")}
+                  </span>
+                  <span>/</span>
+                  <span>
+                    {Math.floor(recordingTime / 60)}:
+                    {(recordingTime % 60).toString().padStart(2, "0")}
+                  </span>
+                </div>
+                <VoiceVisualizer
+                  mediaRecorder={mediaRecorder}
+                  isRecording={isRecording}
+                />
+              </div>
+            )}
+
+            <div
+              dir="ltr"
+              className="flex items-center justify-between gap-2 p-3"
+            >
+              <input
+                type="file"
+                id="multimodal"
+                name="multimodal"
+                accept={attachmentDefaultUploadFile.acceptFileTypes.types.join(
+                  ","
+                )}
+                multiple={true}
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <div className="flex items-center gap-2">
+                {/* <Tooltip content="Add File">
                 <Button
                   // disabled={isErrored}
                   type="button"
@@ -562,12 +600,12 @@ export function MultimodalInput({
                   <Paperclip className="size-5" />
                 </Button>
               </Tooltip> */}
-              {/* <ModelCombobox />
+                {/* <ModelCombobox />
               <SearchModeToggle /> */}
-            </div>
-            {!isRecording ? (
-              <div className="flex  items-center gap-2">
-                {/* <Tooltip content="Dictate">
+              </div>
+              {!isRecording ? (
+                <div className="flex  items-center gap-2">
+                  {/* <Tooltip content="Dictate">
                     <Button
                       type="button"
                       variant="outline"
@@ -579,60 +617,56 @@ export function MultimodalInput({
                       <Mic className="size-5" />
                     </Button>
                   </Tooltip> */}
-                <Button
-                  type={status === "submitted" ? "button" : "submit"}
-                  size={"icon"}
-                  variant={status === "submitted" ? "ghost" : "default"}
-                  className={cn(
-                    "transform",
-                    status === "submitted" && "animate-pulse"
-                  )}
-                  disabled={
-                    (input.length === 0 &&
-                      status !== "submitted" &&
-                      !attachments?.length) ||
-                    !!files?.length
-                  }
-                  onClick={status === "submitted" ? stop : undefined}
-                >
-                  {status === "submitted" ? (
-                    <Square size={16} />
-                  ) : (
-                    <ArrowUp size={16} />
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 ">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="size-10 rounded-xl"
-                  onClick={handleConfirmRecording}
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? <Spinner /> : <Check className="size-5" />}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="size-10 rounded-xl"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCancelRecording();
-                  }}
-                  disabled={isProcessing}
-                >
-                  <X className="size-5" />
-                </Button>
-              </div>
-            )}
+                  <Button
+                    type={status === "submitted" ? "button" : "submit"}
+                    size={"icon"}
+                    variant={status === "submitted" ? "ghost" : "default"}
+                    className={cn(
+                      "transform",
+                      status === "submitted" && "animate-pulse"
+                    )}
+                    disabled={input.length === 0 || isLoading}
+                    onClick={status === "submitted" ? stop : undefined}
+                  >
+                    {status === "submitted" ? (
+                      <Square size={16} />
+                    ) : (
+                      <ArrowUp size={16} />
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 ">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="size-10 rounded-xl"
+                    onClick={handleConfirmRecording}
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? <Spinner /> : <Check className="size-5" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="size-10 rounded-xl"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCancelRecording();
+                    }}
+                    disabled={isProcessing}
+                  >
+                    <X className="size-5" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </>
     // </div>
   );
 }

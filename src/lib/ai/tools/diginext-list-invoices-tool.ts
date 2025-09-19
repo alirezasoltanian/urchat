@@ -2,7 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { db } from "@/db";
 import { customer, invoice, invoiceProduct } from "@/db/schema/diginext";
-import { eq, inArray, sql } from "drizzle-orm";
+import { eq, inArray, sql, gte, lte } from "drizzle-orm";
 
 export const diginextListInvoicesTool = tool({
   description:
@@ -11,12 +11,28 @@ export const diginextListInvoicesTool = tool({
     customerIds: z.array(z.string()).optional(),
     statuses: z.array(z.enum(["draft", "issued", "paid", "void"])).optional(),
     limit: z.number().min(1).max(200).default(50),
-    isChart: z
-      .boolean()
-      .default(false)
-      .describe("Set true if a chart/report is requested"),
+    startDate: z.coerce
+      .date()
+      .optional()
+      .describe("Date to filter invoices issued on/after this date"),
+    startDate: z
+      .string()
+      .refine(
+        (value) => !Number.isNaN(Date.parse(value)),
+        "Invalid ISO datetime"
+      )
+      .optional()
+      .describe("ISO datetime to filter products created on/after this date"),
+    endDate: z
+      .string()
+      .refine(
+        (value) => !Number.isNaN(Date.parse(value)),
+        "Invalid ISO datetime"
+      )
+      .optional()
+      .describe("ISO datetime to filter products created on/before this date"),
   }),
-  execute: async ({ customerIds, statuses, limit }) => {
+  execute: async ({ customerIds, statuses, limit, startDate, endDate }) => {
     // base invoices
     const invs = await db.query.invoice.findMany({
       where: (tbl, { and }) =>
@@ -24,7 +40,9 @@ export const diginextListInvoicesTool = tool({
           customerIds?.length
             ? inArray(tbl.customerId, customerIds)
             : undefined,
-          statuses?.length ? inArray(tbl.status, statuses as any) : undefined
+          statuses?.length ? inArray(tbl.status, statuses as any) : undefined,
+          startDate ? gte(tbl.issuedAt, startDate) : undefined,
+          endDate ? lte(tbl.issuedAt, endDate) : undefined
         ),
       orderBy: (tbl, { desc }) => [desc(tbl.issuedAt)],
       limit,

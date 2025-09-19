@@ -270,7 +270,8 @@ export default function DiginextInvoicesView({
               )}
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left border-b">
+                  <tr className="text-start border-b">
+                    <th className="p-2">شماره</th>
                     <th className="p-2">انتخاب</th>
                     <th className="p-2">کد فاکتور</th>
                     <th className="p-2">مشتری</th>
@@ -282,8 +283,9 @@ export default function DiginextInvoicesView({
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((inv) => (
+                  {rows.map((inv, index) => (
                     <tr key={inv.id} className="border-b">
+                      <td className="p-2">{index + 1}</td>
                       <td className="p-2">
                         <input
                           type="checkbox"

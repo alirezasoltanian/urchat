@@ -10,7 +10,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <Link
+        {/* <Link
           href="/"
           className={cn(
             buttonVariants({ variant: "ghost" }),
@@ -21,7 +21,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             <p>Upgrade Plan</p>
             <p>More access to the best models</p>
           </div>
-        </Link>
+        </Link> */}
       </SidebarMenuItem>
     </SidebarMenu>
   );

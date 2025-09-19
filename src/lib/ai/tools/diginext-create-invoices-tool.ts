@@ -105,6 +105,7 @@ export const diginextCreateInvoicesTool = tool({
       totalCents: number;
       productsCount: number;
       issuedAt: string;
+      status: InvoiceStatus;
     }> = [];
     const errors: string[] = [];
 
@@ -171,6 +172,7 @@ export const diginextCreateInvoicesTool = tool({
             customerEmail: idToCustomerEmail.get(invRow.customerId) ?? null,
             totalCents: total,
             productsCount: count,
+            status: invRow.status,
             issuedAt: (invRow.issuedAt as Date).toISOString(),
           });
         } else {

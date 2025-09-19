@@ -174,17 +174,17 @@ export const PurePreviewMessage = ({
                             message.role === "user",
                         })}
                       >
-                        <ChatTextHighlighter
+                        {/* <ChatTextHighlighter
                           onHighlight={handleHighlight}
                           removeHighlightOnClick={true}
                         >
                           <ChatTextHighlighter
                             onHighlight={handleHighlight}
                             removeHighlightOnClick={true}
-                          >
-                            <Markdown>{sanitizeText(part.text)}</Markdown>
-                          </ChatTextHighlighter>
-                        </ChatTextHighlighter>
+                          > */}
+                        <Markdown>{sanitizeText(part.text)}</Markdown>
+                        {/* </ChatTextHighlighter>
+                        </ChatTextHighlighter> */}
                       </div>
                       {message.role === "user" && !isReadonly && (
                         <div className="flex gap-2 absolute -bottom-[30px]">

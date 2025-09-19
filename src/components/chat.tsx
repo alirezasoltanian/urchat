@@ -17,7 +17,7 @@ import { getChatHistoryPaginationKey } from "./sidebar-history";
 import { toast } from "./toast";
 import * as LucideIcons from "lucide-react";
 
-import { shortcuts } from "@/constants";
+import { shortcuts, suggestions } from "@/constants";
 import { Vote } from "@/db/schema";
 import { forkAction } from "@/lib/queries/chat";
 import { Attachment, ChatMessage } from "@/types";
@@ -31,33 +31,7 @@ import { Button } from "./ui/button";
 import { useSidebar } from "./ui/sidebar";
 import Spinner from "./ui/spinner";
 import type { VisibilityType } from "./visibility-selector";
-type PromptItem = {
-  name: string;
-  description: string;
-  icon?: string;
-};
-const defaultSuggestions: PromptItem[] = [
-  {
-    name: "دریافت مشتری ها",
-    description: "لیستی از مشتری هاتان رو مشاهده می کنید",
-    icon: "User",
-  },
-  {
-    name: "دریافت فکتورها",
-    description: "تمام فاکتورهایتان را دریافت کنید",
-    icon: "FileText",
-  },
-  {
-    name: "تجزیه و تحلبل جامع",
-    description: "بررسی و پیشنهادات برای دیدی بهتر از فروشگاه",
-    icon: "LineChart",
-  },
-  {
-    name: "نمودار درآمدی",
-    description: "نموداری از فروش هاینان داشته باش",
-    icon: "ChartColumnBig",
-  },
-];
+
 export function Chat({
   id,
   initialMessages,
@@ -235,32 +209,7 @@ export function Chat({
           isReadonly={isReadonly}
           setAttachments={setAttachments}
         />
-        {messages.length && (
-          <div className="flex gap-1 w-full absolute bottom-32 mx-auto left-0 right-0 max-w-[650px] overflow-x-auto">
-            {defaultSuggestions.map((item, index) => {
-              const iconName = item.icon ?? "CircleHelp";
-              const IconComponent =
-                ((
-                  LucideIcons as unknown as Record<
-                    string,
-                    React.ComponentType<any>
-                  >
-                )[iconName] as React.ComponentType<any> | undefined) ??
-                (LucideIcons as any).CircleHelp;
-
-              return (
-                <Button
-                  className="flex gap-1 items-center"
-                  onClick={() => onQuerySelect(item.name)}
-                >
-                  <IconComponent className="size-4" />
-
-                  <p>{item.name}</p>
-                </Button>
-              );
-            })}
-          </div>
-        )}
+        {/* Suggestions moved into MultimodalInput */}
         {!isReadonly ? (
           <MultimodalInput
             input={input}
@@ -272,6 +221,7 @@ export function Chat({
             setAttachments={setAttachments}
             sendMessage={sendMessage}
             setMessages={setMessages}
+            hasMessages={!!messages.length}
           />
         ) : (
           <Button

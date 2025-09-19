@@ -54,9 +54,9 @@ export function ChatHeader({
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
-            <DropdownMenuLabel>My Chat</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
+            <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+            {/* <DropdownMenuGroup> */}
+            {/* <DropdownMenuItem>
                 <Link className="w-full" href="/settings/account">
                   Account
                 </Link>
@@ -65,9 +65,9 @@ export function ChatHeader({
                 <Link className="w-full" href="/settings/customization">
                   Customization
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
 
-              <DropdownMenuItem onClick={() => setOpenShortcutDialog(true)}>
+            {/* <DropdownMenuItem onClick={() => setOpenShortcutDialog(true)}>
                 Shortcuts
                 <DropdownMenuShortcut>
                   <div className="flex gap-0.5">
@@ -83,14 +83,14 @@ export function ChatHeader({
                   </div>
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
+            </DropdownMenuGroup> */}
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <Link href="/settings/Contact">Contact</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled>API</DropdownMenuItem>
+            </DropdownMenuItem> */}
+            {/* <DropdownMenuItem disabled>API</DropdownMenuItem> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => {
@@ -103,7 +103,7 @@ export function ChatHeader({
                 });
               }}
             >
-              Log out
+              خروج
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -39,7 +39,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 className="flex flex-row gap-3 items-center"
               >
                 <Image
-                  src="/images/logos/urchat-logo.svg"
+                  src="/images/logos/logo.svg"
                   width={64}
                   height={64}
                   className=""
@@ -60,30 +60,30 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <span>
                   <Plus />{" "}
                 </span>{" "}
-                New Chat
+                چت جدید
               </p>
               <p className="group-hover/button:block hidden text-muted-foreground">
                 Ctrl+Shift+O
               </p>
             </Button>
-            <Button
-              onClick={() => {
-                setOpenSearchDialog(true);
-              }}
-              variant="ghost"
-              className="mt-1 justify-between group/button "
-            >
-              <p className="flex gap-2">
-                {" "}
-                <span>
-                  <Search />{" "}
-                </span>{" "}
-                Search
-              </p>
-              <p className="group-hover/button:block hidden text-muted-foreground">
-                Ctrl+K
-              </p>
-            </Button>
+            {/* <Button
+                onClick={() => {
+                  setOpenSearchDialog(true);
+                }}
+                variant="ghost"
+                className="mt-1 justify-between group/button "
+              >
+                <p className="flex gap-2">
+                  {" "}
+                  <span>
+                    <Search />{" "}
+                  </span>{" "}
+                  جستحو
+                </p>
+                <p className="group-hover/button:block hidden text-muted-foreground">
+                  Ctrl+K
+                </p>
+              </Button> */}
             {/* <Link
               className={cn(
                 buttonVariants({ variant: "ghost" }),

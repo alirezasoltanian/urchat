@@ -188,26 +188,64 @@ export const SUGGESTIONS = [
 ];
 export const shortcuts = [
   {
-    action: "Search",
+    action: "جستجو",
     keys: ["Ctrl", "Shift", "K"],
   },
   {
-    action: "Focus Chat",
+    action: "تمرکز روی چت",
     keys: ["Ctrl", "Shift", "L"],
   },
   {
-    action: "New Chat",
+    action: "چت جدید",
     keys: ["Ctrl", "Shift", "O"],
   },
   {
-    action: "Toggle Sidebar",
-    keys: ["Ctrl", , "B"],
+    action: "نمایش/مخفی کردن سایدبار",
+    keys: ["Ctrl", "B"],
   },
   {
-    action: "Shortcuts",
+    action: "میانبرها",
     keys: ["Ctrl", "Shift", "S"],
   },
 ];
+type PromptItem = {
+  name: string;
+  description: string;
+  icon?: string;
+};
+export const suggestions: PromptItem[] = [
+  {
+    name: "نمایش مشتری‌ها",
+    description: "دسترسی سریع به لیست کامل مشتریان و اطلاعاتشان.",
+    icon: "User",
+  },
+  {
+    name: "نمایش فاکتورها",
+    description: "جستجو و دریافت فاکتورهای فروش.",
+    icon: "FileText",
+  },
+  {
+    name: "تجزیه و تحلیل جامع",
+    description: "بررسی عملکرد کسب‌وکار با تحلیل داده‌ها و پیشنهادهای بهبود.",
+    icon: "LineChart",
+  },
+  {
+    name: "نمودار درآمدی",
+    description: "نمایش تصویری از فروش‌ها و درآمد در بازه‌های زمانی مختلف.",
+    icon: "ChartColumnBig",
+  },
+  {
+    name: "نمایش محصولات",
+    description: "جستجو و دریافت محصولات فروشگاه.",
+    icon: "PackageSearch",
+  },
+  {
+    name: "هفتگی نمایش فاکتورها",
+    description: "جستجو و دریافت فاکتورهای فروش.",
+    icon: "FileStack",
+  },
+];
+
 export const FREE_MODELS_IDS = [
   "openrouter:deepseek/deepseek-r1:free",
   "openrouter:meta-llama/llama-3.3-8b-instruct:free",
