@@ -33,7 +33,7 @@ export const PromptSystem = memo(function PromptSystem({
             return (
               <Card
                 key={index}
-                className="p-4 cursor-pointer relative w-[300px] overflow-hidden hover:bg-background/80 transition-all"
+                className="p-4 cursor-pointer relative w-[310px] overflow-hidden hover:bg-background/80 transition-all"
                 onClick={() => {
                   onQuery(item.name);
                 }}

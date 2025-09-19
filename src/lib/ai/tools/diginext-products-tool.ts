@@ -6,7 +6,7 @@ import { product } from "@/db/schema/diginext";
 
 export const diginextProductsTool = tool({
   description:
-    "Fetch diginext products for selection if dont talk about time dont need endDate and startDate so be undefined",
+    "Fetch diginext products for selection. if dont talk about time dont need endDate and startDate so be undefined.",
   inputSchema: z.object({
     startDate: z
       .string()

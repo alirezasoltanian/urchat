@@ -136,8 +136,8 @@ export function ByokSection() {
 
       toast({
         description: response.isNewKeyAdd
-          ? `Your ${providerConfig?.name} API key has been saved and models have been added to your favorites.`
-          : `Your ${providerConfig?.name} API key has been updated.`,
+          ? `کلید API ${providerConfig?.name} شما ذخیره شد و مدل‌ها به علاقه‌مندی‌های شما اضافه شدند.`
+          : `کلید API ${providerConfig?.name} شما به‌روزرسانی شد.`,
       });
       // Use refreshAll to ensure models, user key status, and favorites are all in sync after saving a key
       await refreshAll();
@@ -154,7 +154,7 @@ export function ByokSection() {
 
       toast({
         type: "error",
-        description: `Failed to save ${providerConfig?.name} API key. Please try again.`,
+        description: `ذخیره کلید API ${providerConfig?.name} ناموفق بود. لطفاً دوباره تلاش کنید.`,
       });
     },
   });
@@ -174,7 +174,7 @@ export function ByokSection() {
       const providerConfig = PROVIDERS.find((p) => p.id === provider);
       toast({
         type: "success",
-        description: `Your ${providerConfig?.name} API key has been deleted.`,
+        description: `کلید API ${providerConfig?.name} شما حذف شد.`,
       });
       await refreshAll();
       setApiKeys((prev) => ({ ...prev, [provider]: "" }));
@@ -185,7 +185,7 @@ export function ByokSection() {
       const providerConfig = PROVIDERS.find((p) => p.id === provider);
       toast({
         type: "error",
-        description: `Failed to delete ${providerConfig?.name} API key. Please try again.`,
+        description: `حذف کلید API ${providerConfig?.name} ناموفق بود. لطفاً دوباره تلاش کنید.`,
       });
       setDeleteDialogOpen(false);
       setProviderToDelete("");
@@ -211,16 +211,16 @@ export function ByokSection() {
   return (
     <div>
       <h3 className="relative mb-2 inline-flex text-lg font-medium">
-        Model Providers{" "}
+        ارائه دهندگان مدل{" "}
         <span className="text-muted-foreground absolute top-0 -right-7 text-xs">
-          new
+          جدید
         </span>
       </h3>
       <p className="text-muted-foreground text-sm">
-        Add your own API keys to unlock access to models.
+        کلیدهای API خود را اضافه کنید تا به مدل‌ها دسترسی پیدا کنید.
       </p>
       <p className="text-muted-foreground text-sm">
-        Your keys are stored securely with end-to-end encryption.
+        کلیدهای شما با رمزگذاری end-to-end به صورت امن ذخیره می‌شوند.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-3">
@@ -263,7 +263,7 @@ export function ByokSection() {
         {selectedProviderConfig && (
           <div className="flex flex-col">
             <Label htmlFor={`${selectedProvider}-key`} className="mb-3">
-              {selectedProviderConfig.name} API Key
+              کلید API {selectedProviderConfig.name}
             </Label>
             <Input
               id={`${selectedProvider}-key`}
@@ -284,7 +284,7 @@ export function ByokSection() {
                 target="_blank"
                 className="text-muted-foreground mt-1 text-xs hover:underline"
               >
-                Get API key
+                دریافت کلید API
               </a>
               <div className="flex gap-2">
                 {userKeyStatus[
@@ -301,7 +301,7 @@ export function ByokSection() {
                     }
                   >
                     <Trash2 className="mr-1 size-4" />
-                    Delete
+                    حذف
                   </Button>
                 )}
                 <Button
@@ -314,7 +314,7 @@ export function ByokSection() {
                   {saveMutation.isPending ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
-                    "Save"
+                    "ذخیره"
                   )}
                 </Button>
               </div>
@@ -326,16 +326,17 @@ export function ByokSection() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete API Key</AlertDialogTitle>
+            <AlertDialogTitle>حذف کلید API</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete your{" "}
-              {PROVIDERS.find((p) => p.id === providerToDelete)?.name} API key?
-              This action cannot be undone and you will lose access to{" "}
-              {PROVIDERS.find((p) => p.id === providerToDelete)?.name} models.
+              آیا مطمئن هستید که می‌خواهید کلید API{" "}
+              {PROVIDERS.find((p) => p.id === providerToDelete)?.name} خود را
+              حذف کنید؟ این عمل قابل بازگشت نیست و دسترسی شما به مدل‌های{" "}
+              {PROVIDERS.find((p) => p.id === providerToDelete)?.name} از دست
+              خواهد رفت.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>لغو</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
@@ -343,7 +344,7 @@ export function ByokSection() {
               {deleteMutation.isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : null}
-              Delete
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

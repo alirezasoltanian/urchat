@@ -35,7 +35,7 @@ export function SidebarToggle({
               <SidebarLeftIcon size={12} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent align="start">Toggle Sidebar</TooltipContent>
+          <TooltipContent align="start">نوار کناری</TooltipContent>
         </Tooltip>
       ) : (
         <div className="flex gap-1">
@@ -50,7 +50,7 @@ export function SidebarToggle({
                 <SidebarLeftIcon size={12} />
               </Button>
             </TooltipTrigger>
-            <TooltipContent align="start">Toggle Sidebar</TooltipContent>
+            <TooltipContent align="start">نوار کناری</TooltipContent>
           </Tooltip>
           <motion.div
             initial={{ x: -50, opacity: 0 }}
@@ -104,7 +104,7 @@ export function SidebarToggle({
                   <PlusIcon size={12} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent align="end">New Chat</TooltipContent>
+              <TooltipContent align="end">چت جدید</TooltipContent>
             </Tooltip>
           </motion.div>
         </div>

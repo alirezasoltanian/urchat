@@ -75,7 +75,7 @@ export function MessageEditor({
             setMode("view");
           }}
         >
-          Cancel
+          انصراف
         </Button>
         <Button
           data-testid="message-editor-send-button"
@@ -111,7 +111,7 @@ export function MessageEditor({
             regenerate();
           }}
         >
-          {isSubmitting ? "Sending..." : "Send"}
+          {isSubmitting ? "درحال ارسال" : "ارسال"}
         </Button>
       </div>
     </div>

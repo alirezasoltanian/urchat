@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "urchat",
-  description: "urchat",
+  title: "دیجی اینسایت",
+  description: "دیجی اینسایت",
 };
 
 export default async function RootLayout({

@@ -188,7 +188,7 @@ export const PurePreviewMessage = ({
                       </div>
                       {message.role === "user" && !isReadonly && (
                         <div className="flex gap-2 absolute -bottom-[30px]">
-                          <Tooltip content="Edit message">
+                          <Tooltip content="اصلاح">
                             <Button
                               data-testid="message-edit-button"
                               variant="ghost"
@@ -201,7 +201,7 @@ export const PurePreviewMessage = ({
                               <PencilEditIcon />
                             </Button>
                           </Tooltip>
-                          <Tooltip content="Copy">
+                          <Tooltip content="کپی">
                             <CopyButton
                               className={cn(
                                 buttonVariants({
