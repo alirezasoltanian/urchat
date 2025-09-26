@@ -39,6 +39,7 @@ import {
 } from "ai";
 import { cookies } from "next/headers";
 import { after } from "next/server";
+import { projectCompilationEventsSubscribe } from "next/dist/build/swc/generated-native";
 // import {
 //   createResumableStreamContext,
 //   type ResumableStreamContext,
@@ -186,11 +187,13 @@ export async function POST(request: Request) {
     //   apiKey: process.env.OPENROUTER_API_KEY,
     // }).chat(openrouterFormat);
     // console.log("44422", model);
-
+    const openrouter = createOpenRouter({
+      apiKey: process.env.OPENROUTER_API_KEY,
+    });
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model: openai("o3-mini"),
+          model: openrouter("openai/gpt-5-nano"),
           // model,
           system,
           messages,
