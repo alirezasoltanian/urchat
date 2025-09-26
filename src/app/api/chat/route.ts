@@ -193,7 +193,7 @@ export async function POST(request: Request) {
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
         const result = streamText({
-          model: openrouter("openai/gpt-5-nano"),
+          model: openrouter("openai/o3-mini"),
           // model,
           system,
           messages,
